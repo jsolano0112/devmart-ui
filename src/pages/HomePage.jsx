@@ -1,133 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
+import { ProductContext } from '../contexts/ProductProvider';
 
 export default function HomePage() {
+  const { productState: {products}, getProducts, loading, error } = useContext(ProductContext);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [cart, setCart] = useState([]);
 
-  // Mock data
-  const products = [
-    {
-      id: 1,
-      name: 'React Dashboard Template',
-      category: 'templates',
-      price: 49.99,
-      image: '⚛️',
-      description: 'Modern admin dashboard built with React and Tailwind CSS',
-      rating: 4.8,
-      stock: 15
-    },
-    {
-      id: 2,
-      name: 'Node.js API Boilerplate',
-      category: 'code',
-      price: 29.99,
-      image: '🟢',
-      description: 'Production-ready REST API with authentication and database',
-      rating: 4.9,
-      stock: 8
-    },
-    {
-      id: 3,
-      name: 'UI Component Library',
-      category: 'components',
-      price: 39.99,
-      image: '🎨',
-      description: '50+ customizable React components for your next project',
-      rating: 4.7,
-      stock: 20
-    },
-    {
-      id: 4,
-      name: 'E-commerce Starter Kit',
-      category: 'templates',
-      price: 79.99,
-      image: '🛒',
-      description: 'Full-stack e-commerce solution with payment integration',
-      rating: 5.0,
-      stock: 5
-    },
-    {
-      id: 5,
-      name: 'Python Data Pipeline',
-      category: 'code',
-      price: 34.99,
-      image: '🐍',
-      description: 'Automated ETL pipeline for data processing and analytics',
-      rating: 4.6,
-      stock: 12
-    },
-    {
-      id: 6,
-      name: 'Mobile App Template',
-      category: 'templates',
-      price: 59.99,
-      image: '📱',
-      description: 'Cross-platform mobile app built with React Native',
-      rating: 4.8,
-      stock: 10
-    },
-    {
-      id: 7,
-      name: 'Animation Library',
-      category: 'components',
-      price: 24.99,
-      image: '✨',
-      description: 'Smooth animations and transitions for web applications',
-      rating: 4.5,
-      stock: 25
-    },
-    {
-      id: 8,
-      name: 'Docker DevOps Kit',
-      category: 'code',
-      price: 44.99,
-      image: '🐳',
-      description: 'Complete CI/CD pipeline with Docker and Kubernetes',
-      rating: 4.9,
-      stock: 7
-    },
-    {
-      id: 9,
-      name: 'Vue.js SPA Template',
-      category: 'templates',
-      price: 54.99,
-      image: '💚',
-      description: 'Single Page Application starter with Vue 3 and Vite',
-      rating: 4.7,
-      stock: 18
-    },
-    {
-      id: 10,
-      name: 'GraphQL API Kit',
-      category: 'code',
-      price: 39.99,
-      image: '🔷',
-      description: 'Complete GraphQL server setup with Apollo and TypeScript',
-      rating: 4.8,
-      stock: 11
-    },
-    {
-      id: 11,
-      name: 'Chart Components Pack',
-      category: 'components',
-      price: 29.99,
-      image: '📊',
-      description: 'Beautiful data visualization charts and graphs library',
-      rating: 4.6,
-      stock: 30
-    },
-    {
-      id: 12,
-      name: 'AI Chatbot Template',
-      category: 'templates',
-      price: 89.99,
-      image: '🤖',
-      description: 'AI-powered chatbot with natural language processing',
-      rating: 4.9,
-      stock: 6
-    }
-  ];
+  useEffect(() => {
+    getProducts();
+  }, []);
 
   const categories = [
     { id: 'all', label: 'All Products', icon: '📦' },
@@ -136,16 +18,17 @@ export default function HomePage() {
     { id: 'components', label: 'Components', icon: '🧩' }
   ];
 
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         product.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
+  const filteredProducts = (products || []).filter(product => {
+    const matchesSearch =
+      product.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory =
+      selectedCategory === 'all' || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
   const addToCart = (product) => {
     setCart([...cart, product]);
-    console.log('Added to cart:', product);
     alert(`✅ ${product.name} added to cart!`);
   };
 
@@ -153,7 +36,7 @@ export default function HomePage() {
     container: {
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-      paddingTop: '64px' // Espacio para el navbar fijo
+      paddingTop: '64px'
     },
     content: {
       maxWidth: '1280px',
@@ -306,15 +189,31 @@ export default function HomePage() {
     }
   };
 
+  if (loading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '80px', color: '#64748b' }}>
+        <h2>Loading products...</h2>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ textAlign: 'center', padding: '80px', color: '#ef4444' }}>
+        <h2>❌ Failed to load products</h2>
+        <p>{error}</p>
+      </div>
+    );
+  }
+
   return (
     <div style={styles.container}>
       <div style={styles.content}>
         <div style={styles.header}>
-          <h1 style={styles.title}>Browse Products</h1>
+          <h1 style={styles.title}>Products</h1>
           <p style={styles.subtitle}>Discover amazing tools and resources for developers</p>
         </div>
 
-        {/* Filters */}
         <div style={styles.filterSection}>
           <input
             type="text"
@@ -322,8 +221,8 @@ export default function HomePage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={styles.searchBar}
-            onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-            onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
+            onFocus={(e) => (e.target.style.borderColor = '#3b82f6')}
+            onBlur={(e) => (e.target.style.borderColor = '#e2e8f0')}
           />
           <div style={styles.categories}>
             {categories.map(category => (
@@ -334,16 +233,6 @@ export default function HomePage() {
                   ...styles.categoryBtn,
                   ...(selectedCategory === category.id ? styles.categoryBtnActive : {})
                 }}
-                onMouseEnter={(e) => {
-                  if (selectedCategory !== category.id) {
-                    e.target.style.background = '#f8fafc';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (selectedCategory !== category.id) {
-                    e.target.style.background = 'white';
-                  }
-                }}
               >
                 <span>{category.icon}</span>
                 {category.label}
@@ -352,12 +241,10 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Results count */}
         <div style={styles.resultsCount}>
-          Showing {filteredProducts.length} of {products.length} products
+          Showing {filteredProducts.length} of {products?.length || 0} products
         </div>
 
-        {/* Products Grid */}
         {filteredProducts.length > 0 ? (
           <div style={styles.productsGrid}>
             {filteredProducts.map(product => (
@@ -373,14 +260,19 @@ export default function HomePage() {
                   e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
                 }}
               >
-                <div style={styles.productIcon}>{product.image}</div>
+                <div style={styles.productIcon}>{product.image || '🛍️'}</div>
                 <h3 style={styles.productName}>{product.name}</h3>
                 <div style={styles.productMeta}>
-                  <div style={styles.rating}>
-                    ⭐ {product.rating} rating
-                  </div>
-                  <div style={{...styles.stock, ...(product.stock < 10 ? styles.stockLow : {})}}>
-                    {product.stock < 10 ? `⚠️ Only ${product.stock} left!` : `✅ ${product.stock} in stock`}
+                  <div style={styles.rating}>⭐ {product.rating || 4.5} rating</div>
+                  <div
+                    style={{
+                      ...styles.stock,
+                      ...(product.stock < 10 ? styles.stockLow : {})
+                    }}
+                  >
+                    {product.stock < 10
+                      ? `⚠️ Only ${product.stock} left!`
+                      : `✅ ${product.stock} in stock`}
                   </div>
                 </div>
                 <p style={styles.productDescription}>{product.description}</p>
@@ -389,8 +281,6 @@ export default function HomePage() {
                   <button
                     style={styles.addButton}
                     onClick={() => addToCart(product)}
-                    onMouseEnter={(e) => e.target.style.background = '#0f172a'}
-                    onMouseLeave={(e) => e.target.style.background = '#1e293b'}
                   >
                     Add to Cart
                   </button>
