@@ -35,6 +35,8 @@ A modern React-based web application built with TypeScript, designed as the fron
    }
    ```
 
+   **Backend Repository**: https://github.com/jsolano0112/devmart-api
+
 4. **Run the application:**
    ```bash
    npm start
