@@ -1,5 +1,6 @@
-import { loginUser } from "../api/authService"
+import { loginUser } from "../api/userService"
 import { authTypes } from "../types/authTypes"
+import { signUp } from "../api/userService"
 export const useAuthenticate = (dispatch) => {
 
     const login = async ({ email, password }) => {
@@ -34,5 +35,20 @@ export const useAuthenticate = (dispatch) => {
 
     }
 
-    return {login, logout}
+    const signUpUser = async ({ firstName, lastName, email, address, mobilePhone, city, zipCode, password, isAdmin }) => {
+        const { ok, errorMessage } = await signUp(firstName, lastName, email, address, mobilePhone, city, zipCode, password, isAdmin)
+
+        if (!ok) {
+            const action = {
+                type: authTypes.errors,
+                payload: { errorMessage }
+            }
+            dispatch(action);
+
+            return { ok: false, errorMessage };
+        }
+
+        return { ok: true, errorMessage: null }
+    }
+    return {login, logout, signUpUser}
 }
