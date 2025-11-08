@@ -15,7 +15,6 @@ export const useProducts= (dispatch) => {
             });
             return false;
         }
-        console.log("usepr",products)
         dispatch({
             type: productTypes.getProducts,
             payload: products

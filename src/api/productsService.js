@@ -3,7 +3,6 @@ import api from "./apiClient";
 export const getAllProducts = async () => {
   try {
     const { data } = await api.get("/products");
-    console.log(data)
     return {
       ok: true,
       products: data.data

@@ -1,6 +1,6 @@
-import React, { useState, useContext } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { UserContext } from '../contexts/UserProvider';
+import React, { useState, useContext } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { UserContext } from "../contexts/UserProvider";
 
 export const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -14,131 +14,129 @@ export const Navbar = () => {
   const isActive = (path) => location.pathname === path;
 
   const clientRoutes = [
-    { path: '/', label: 'Home', icon: '🏠' },
-    { path: '/cart', label: 'Cart', icon: '🛒' },
-    { path: '/orders', label: 'My Orders', icon: '📦' },
-    { path: '/profile', label: 'Profile', icon: '👤' }
+    { path: "/", label: "Home", icon: "🏠" },
+    { path: "/cart", label: "Cart", icon: "🛒" },
+    { path: "/orders", label: "My Orders", icon: "📦" },
+    { path: "/profile", label: "Profile", icon: "👤" },
   ];
 
   const adminRoutes = [
-    { path: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
-    { path: '/admin/products', label: 'Manage Products', icon: '📝' },
-    { path: '/admin/orders', label: 'All Orders', icon: '📋' },
-    { path: '/admin/users', label: 'Users', icon: '👥' }
+    { path: "/admin/products", label: "Manage Products", icon: "📝" },
+    { path: "/admin/orders", label: "All Orders", icon: "📋" },
   ];
 
-  const routes = userState.isAdmin 
-    ? [...clientRoutes, ...adminRoutes] 
+  const routes = userState.user.isAdmin
+    ? [...clientRoutes, ...adminRoutes]
     : clientRoutes;
 
   const styles = {
     navbar: {
-      background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
-      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-      position: 'sticky',
+      background: "linear-gradient(135deg, #1e293b 0%, #334155 100%)",
+      boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+      position: "sticky",
       top: 0,
-      zIndex: 1000
+      zIndex: 1000,
     },
     container: {
-      maxWidth: '1280px',
-      margin: '0 auto',
-      padding: '0 20px'
+      maxWidth: "1280px",
+      margin: "0 auto",
+      padding: "0 20px",
     },
     navContent: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      height: '64px'
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      height: "64px",
     },
     logo: {
-      display: 'flex',
-      alignItems: 'center',
-      textDecoration: 'none',
-      fontSize: '24px',
-      fontWeight: 'bold',
-      color: 'white'
+      display: "flex",
+      alignItems: "center",
+      textDecoration: "none",
+      fontSize: "24px",
+      fontWeight: "bold",
+      color: "white",
     },
     logoAccent: {
-      color: '#3b82f6'
+      color: "#3b82f6",
     },
     desktopMenu: {
-      display: 'flex',
-      gap: '8px',
-      alignItems: 'center'
+      display: "flex",
+      gap: "8px",
+      alignItems: "center",
     },
     navLink: {
-      padding: '8px 16px',
-      borderRadius: '6px',
-      textDecoration: 'none',
-      color: '#e2e8f0',
-      fontSize: '14px',
-      fontWeight: '500',
-      transition: 'all 0.2s',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '6px'
+      padding: "8px 16px",
+      borderRadius: "6px",
+      textDecoration: "none",
+      color: "#e2e8f0",
+      fontSize: "14px",
+      fontWeight: "500",
+      transition: "all 0.2s",
+      display: "flex",
+      alignItems: "center",
+      gap: "6px",
     },
     navLinkActive: {
-      background: 'rgba(59, 130, 246, 0.2)',
-      color: '#3b82f6'
+      background: "rgba(59, 130, 246, 0.2)",
+      color: "#3b82f6",
     },
     userSection: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '12px'
+      display: "flex",
+      alignItems: "center",
+      gap: "12px",
     },
     userInfo: {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'flex-end'
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "flex-end",
     },
     userName: {
-      color: 'white',
-      fontSize: '14px',
-      fontWeight: '600'
+      color: "white",
+      fontSize: "14px",
+      fontWeight: "600",
     },
     userRole: {
-      color: '#94a3b8',
-      fontSize: '12px'
+      color: "#94a3b8",
+      fontSize: "12px",
     },
     adminBadge: {
-      background: '#3b82f6',
-      color: 'white',
-      padding: '2px 8px',
-      borderRadius: '4px',
-      fontSize: '11px',
-      fontWeight: '600'
+      background: "#3b82f6",
+      color: "white",
+      padding: "2px 8px",
+      borderRadius: "4px",
+      fontSize: "11px",
+      fontWeight: "600",
     },
     logoutBtn: {
-      padding: '8px 16px',
-      background: '#ef4444',
-      color: 'white',
-      border: 'none',
-      borderRadius: '6px',
-      fontSize: '14px',
-      fontWeight: '600',
-      cursor: 'pointer',
-      transition: 'all 0.2s'
+      padding: "8px 16px",
+      background: "#ef4444",
+      color: "white",
+      border: "none",
+      borderRadius: "6px",
+      fontSize: "14px",
+      fontWeight: "600",
+      cursor: "pointer",
+      transition: "all 0.2s",
     },
     mobileMenuBtn: {
-      display: 'none',
-      background: 'none',
-      border: 'none',
-      color: 'white',
-      fontSize: '24px',
-      cursor: 'pointer',
-      padding: '8px'
+      display: "none",
+      background: "none",
+      border: "none",
+      color: "white",
+      fontSize: "24px",
+      cursor: "pointer",
+      padding: "8px",
     },
     mobileMenu: {
-      display: 'none',
-      flexDirection: 'column',
-      gap: '4px',
-      padding: '16px 0',
-      borderTop: '1px solid rgba(255,255,255,0.1)'
+      display: "none",
+      flexDirection: "column",
+      gap: "4px",
+      padding: "16px 0",
+      borderTop: "1px solid rgba(255,255,255,0.1)",
     },
     mobileMenuOpen: {
-      display: 'flex'
-    }
+      display: "flex",
+    },
   };
 
   // Media query for mobile
@@ -167,16 +165,16 @@ export const Navbar = () => {
                   to={route.path}
                   style={{
                     ...styles.navLink,
-                    ...(isActive(route.path) ? styles.navLinkActive : {})
+                    ...(isActive(route.path) ? styles.navLinkActive : {}),
                   }}
                   onMouseEnter={(e) => {
                     if (!isActive(route.path)) {
-                      e.target.style.background = 'rgba(255,255,255,0.1)';
+                      e.target.style.background = "rgba(255,255,255,0.1)";
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (!isActive(route.path)) {
-                      e.target.style.background = 'transparent';
+                      e.target.style.background = "transparent";
                     }
                   }}
                 >
@@ -198,8 +196,8 @@ export const Navbar = () => {
               <button
                 style={styles.logoutBtn}
                 onClick={handleLogout}
-                onMouseEnter={(e) => e.target.style.background = '#dc2626'}
-                onMouseLeave={(e) => e.target.style.background = '#ef4444'}
+                onMouseEnter={(e) => (e.target.style.background = "#dc2626")}
+                onMouseLeave={(e) => (e.target.style.background = "#ef4444")}
               >
                 Logout
               </button>
@@ -208,20 +206,20 @@ export const Navbar = () => {
                 className="mobile-menu-btn"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               >
-                {isMobileMenuOpen ? '✕' : '☰'}
+                {isMobileMenuOpen ? "✕" : "☰"}
               </button>
             </div>
           </div>
 
           {isMobileMenuOpen && (
-            <div style={{...styles.mobileMenu, ...styles.mobileMenuOpen}}>
+            <div style={{ ...styles.mobileMenu, ...styles.mobileMenuOpen }}>
               {routes.map((route) => (
                 <Link
                   key={route.path}
                   to={route.path}
                   style={{
                     ...styles.navLink,
-                    ...(isActive(route.path) ? styles.navLinkActive : {})
+                    ...(isActive(route.path) ? styles.navLinkActive : {}),
                   }}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
