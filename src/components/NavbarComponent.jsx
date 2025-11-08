@@ -15,7 +15,6 @@ export const Navbar = () => {
 
   const clientRoutes = [
     { path: '/', label: 'Home', icon: '🏠' },
-    { path: '/products', label: 'Products', icon: '🛍️' },
     { path: '/cart', label: 'Cart', icon: '🛒' },
     { path: '/orders', label: 'My Orders', icon: '📦' },
     { path: '/profile', label: 'Profile', icon: '👤' }
