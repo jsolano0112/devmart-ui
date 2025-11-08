@@ -24,3 +24,21 @@ export const loginUser = async (email, password) => {
     };
   }
 };
+
+
+export const signUp = async (firstName, lastName, email, address, mobilePhone, city, zipCode, password, isAdmin) => {
+  try {
+    const { data } = await api.post("/users", { firstName, lastName, email, address, mobilePhone,  city, zipCode, password, isAdmin});
+
+    console.log(data)
+
+    return {
+      ok: true
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      errorMessage: error.response?.data?.errors?.[0]?.msg ?? error.response?.data?.error
+    };
+  }
+};
