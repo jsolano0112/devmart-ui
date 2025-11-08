@@ -8,7 +8,7 @@ export const loginUser = async (email, password) => {
     const { id, firstname, lastname, isAdmin, accessToken, refreshToken } = data;
 
     setAuthTokens({ accessToken, refreshToken });
-    localStorage.setItem("tokens", JSON.stringify({ accessToken, refreshToken }));
+    localStorage.setItem("loggedUser", JSON.stringify({ id, firstname, lastname, isAdmin, accessToken, refreshToken }));
 
     return {
       ok: true,

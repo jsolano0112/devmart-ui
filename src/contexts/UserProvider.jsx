@@ -9,7 +9,7 @@ const authInitialState = {
 };
 
 const init = () => {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = JSON.parse(localStorage.getItem("loggedUser"));
   if (user) {
     return {
       logged: true,
