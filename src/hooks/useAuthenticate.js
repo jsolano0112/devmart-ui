@@ -1,0 +1,38 @@
+import { loginUser } from "../api/authService"
+import { authTypes } from "../types/authTypes"
+export const useAuthenticate = (dispatch) => {
+
+    const login = async ({ email, password }) => {
+        const { ok, uid, photoURL, displayName, errorMessage } = await loginUser(email, password)
+
+        if (!ok) {
+            const action = {
+                type: authTypes.errors,
+                payload: { errorMessage }
+            }
+            dispatch(action);
+
+            return { ok: false, errorMessage };
+        }
+
+        const userPayload = { email, uid, displayName, photoURL }
+
+        const action = {
+            type: authTypes.login,
+            payload: userPayload,
+        };
+        dispatch(action);
+        return { ok: true, errorMessage: null }
+    }
+
+    const logout = () => {
+        const action = {
+            type: authTypes.logout,
+        }
+        localStorage.clear();
+        dispatch(action)
+
+    }
+
+    return {login, logout}
+}
