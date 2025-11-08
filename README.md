@@ -13,11 +13,11 @@ A modern React-based web application built with TypeScript, designed as the fron
 - **CSS-in-JS** - Integrated styling
 - **Create React App** - Boilerplate and build system
 
-## 🚀 Installation a
+## 🚀 Installation
 
 1. **Clone the repository:**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/jsolano0112/devmart-ui.git
    cd devmart-ui
    ```
 
