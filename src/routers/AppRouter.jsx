@@ -9,7 +9,6 @@ export const AppRouter = () => {
   const {
     userState: { logged },
   } = useContext(UserContext);
-  console.log("logged??", logged);
   if (!logged) {
     return (
       <>
