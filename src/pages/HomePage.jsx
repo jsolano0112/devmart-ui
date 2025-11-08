@@ -1,25 +1,33 @@
 import React, { useState, useContext, useEffect } from "react";
 import { ProductContext } from "../contexts/ProductProvider";
 import { CategoryContext } from "../contexts/CategoriesProvider";
+import { UserContext } from "../contexts/UserProvider";
 
 export default function HomePage() {
   const {
     productState: { products },
     getProducts,
-    loading,
+    loadingProducts,
     error,
   } = useContext(ProductContext);
   const {
     categoryState: { categories },
     getCategories,
   } = useContext(CategoryContext);
+  const {
+    userState: { isAdmin },
+  } = useContext(UserContext);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [cart, setCart] = useState([]);
   const allCategories = [{ id: "all", name: "All" }, ...(categories || [])];
   useEffect(() => {
-    getProducts();
-    getCategories();
+    const timer = setTimeout(() => {
+      getProducts();
+      getCategories();
+    }, 1000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   const filteredProducts = (products || []).filter((product) => {
@@ -111,8 +119,10 @@ export default function HomePage() {
     },
     productsGrid: {
       display: "grid",
-      gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+      gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+      gridAutoRows: "1fr",
       gap: "24px",
+      alignItems: "stretch",
     },
     productCard: {
       background: "white",
@@ -123,11 +133,19 @@ export default function HomePage() {
       cursor: "pointer",
       display: "flex",
       flexDirection: "column",
+      justifyContent: "space-between",
+      height: "100%",
     },
     productIcon: {
-      fontSize: "64px",
       textAlign: "center",
       marginBottom: "16px",
+    },
+    productImage: {
+      width: "100%",
+      height: "220px", 
+      objectFit: "cover", 
+      borderRadius: "8px",
+      marginBottom: "12px",
     },
     productName: {
       fontSize: "18px",
@@ -194,7 +212,7 @@ export default function HomePage() {
     },
   };
 
-  if (loading) {
+  if (loadingProducts) {
     return (
       <div style={{ textAlign: "center", padding: "80px", color: "#64748b" }}>
         <h2>Loading products...</h2>
@@ -269,7 +287,17 @@ export default function HomePage() {
                   e.currentTarget.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
                 }}
               >
-                <div style={styles.productIcon}>{product.image || "🛍️"}</div>
+                <div style={styles.productIcon}>
+                  {product.images ? (
+                    <img
+                      src={product.images}
+                      alt={product.name}
+                       style={styles.productImage}
+                    />
+                  ) : (
+                    "🛍️"
+                  )}
+                </div>
                 <h3 style={styles.productName}>{product.name}</h3>
                 <div style={styles.productMeta}>
                   <div style={styles.rating}>
