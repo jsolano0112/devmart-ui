@@ -3,9 +3,7 @@ import { UserContext } from "../contexts/UserProvider";
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 export default function SignUpPage() {
-  const {
-    signUpUser
-  } = useContext(UserContext);
+  const { signUpUser } = useContext(UserContext);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -30,10 +28,30 @@ export default function SignUpPage() {
 
     if (!formData.firstName.trim()) {
       newErrors.firstName = "First name is required";
+    } else if (formData.firstName.length > 30) {
+      newErrors.firstName = "First name must be at most 30 characters";
+    } else if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+$/.test(formData.firstName)) {
+      newErrors.firstName = "First name must contain only letters";
     }
 
     if (!formData.lastName.trim()) {
       newErrors.lastName = "Last name is required";
+    } else if (formData.lastName.length > 30) {
+      newErrors.lastName = "Last name must be at most 30 characters";
+    } else if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+$/.test(formData.lastName)) {
+      newErrors.lastName = "Last name must contain only letters";
+    }
+
+    if (formData.city) {
+      if (formData.city.length > 30) {
+        newErrors.city = "City must be at most 30 characters";
+      } else if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+$/.test(formData.city)) {
+        newErrors.city = "City must contain only letters";
+      }
+    }
+
+    if (formData.address && formData.address.length > 30) {
+      newErrors.address = "Address must be at most 30 characters";
     }
 
     if (!formData.email.trim()) {
@@ -66,7 +84,10 @@ export default function SignUpPage() {
       newErrors.mobilePhone = "Invalid phone number";
     }
 
-    if (formData.zipCode && !/^\d+$/.test(formData.zipCode)) {
+    if (
+      formData.zipCode &&
+      !/^\d{6}$/.test(formData.zipCode.replace(/\s/g, ""))
+    ) {
       newErrors.zipCode = "Invalid zip code";
     }
 
@@ -561,6 +582,9 @@ export default function SignUpPage() {
                 placeholder="123 Main St"
                 style={styles.input}
               />
+              {errors.address && (
+                <div style={styles.error}>{errors.address}</div>
+              )}
             </div>
 
             {/* City and Zip Code */}
@@ -578,6 +602,7 @@ export default function SignUpPage() {
                   placeholder="Medellin"
                   style={styles.input}
                 />
+                {errors.city && <div style={styles.error}>{errors.city}</div>}
               </div>
 
               <div>
