@@ -15,7 +15,7 @@ export default function HomePage() {
     getCategories,
   } = useContext(CategoryContext);
   const {
-    userState: { isAdmin },
+    userState: { user },
   } = useContext(UserContext);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -49,7 +49,7 @@ export default function HomePage() {
     container: {
       minHeight: "100vh",
       background: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)",
-      paddingTop: "64px",
+      paddingTop: "5px",
     },
     content: {
       maxWidth: "1280px",
@@ -57,6 +57,10 @@ export default function HomePage() {
       padding: "40px 20px",
     },
     header: {
+      display: "flex",
+      justifyContent: "flex-start",
+      alignItems: "center",
+      gap: "10px",
       marginBottom: "32px",
     },
     title: {
@@ -142,8 +146,8 @@ export default function HomePage() {
     },
     productImage: {
       width: "100%",
-      height: "220px", 
-      objectFit: "cover", 
+      height: "220px",
+      objectFit: "cover",
       borderRadius: "8px",
       marginBottom: "12px",
     },
@@ -232,13 +236,12 @@ export default function HomePage() {
   return (
     <div style={styles.container}>
       <div style={styles.content}>
-        <div style={styles.header}>
-          <h1 style={styles.title}>Products</h1>
-          <p style={styles.subtitle}>
-            Discover amazing tools and resources for developers
-          </p>
-        </div>
-
+        {user.isAdmin && (
+          <div style={styles.header}>
+            <button style={styles.addButton}>Add Product</button>
+            <button style={styles.addButton}>Add Category</button>
+          </div>
+        )}
         <div style={styles.filterSection}>
           <input
             type="text"
@@ -292,7 +295,7 @@ export default function HomePage() {
                     <img
                       src={product.images}
                       alt={product.name}
-                       style={styles.productImage}
+                      style={styles.productImage}
                     />
                   ) : (
                     "🛍️"
