@@ -40,9 +40,6 @@ export default function LoginPage() {
       if (!result.ok) {
         newErrors.password = result.errorMessage;
         setErrors(newErrors);
-      } else {
-        console.log("entró");
-        // navigate("/", { replace: true });
       }
     }
   };

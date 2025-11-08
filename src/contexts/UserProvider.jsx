@@ -22,10 +22,10 @@ const init = () => {
 const UserContext = createContext();
 function UserProvider(props) {
   const [userState, dispatch] = useReducer(authReducer, authInitialState, init);
-  const { login, logout } = useAuthenticate(dispatch);
-
+  const { login, logout, signUpUser } = useAuthenticate(dispatch);
+  console.log("userState",userState)
   return (
-    <UserContext.Provider value={{ userState, login, logout }}>
+    <UserContext.Provider value={{ userState, login, logout, signUpUser }}>
       {props.children}
     </UserContext.Provider>
   );
