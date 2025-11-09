@@ -2,7 +2,8 @@ import React, { useState, useContext, useEffect } from "react";
 import { ProductContext } from "../contexts/ProductProvider";
 import { CategoryContext } from "../contexts/CategoriesProvider";
 import { UserContext } from "../contexts/UserProvider";
-
+import { Link } from "react-router-dom";
+import CategoriesModal from "../components/ManageCategoryComponent";
 export default function HomePage() {
   const {
     productState: { products },
@@ -12,15 +13,19 @@ export default function HomePage() {
   } = useContext(ProductContext);
   const {
     categoryState: { categories },
-    getCategories,
+    getCategories
   } = useContext(CategoryContext);
   const {
     userState: { user },
   } = useContext(UserContext);
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [cart, setCart] = useState([]);
+  const [showCategoriesModal, setShowCategoriesModal] = useState(false);
+  
   const allCategories = [{ id: "all", name: "All" }, ...(categories || [])];
+  
   useEffect(() => {
     const timer = setTimeout(() => {
       getProducts();
@@ -207,6 +212,8 @@ export default function HomePage() {
       fontWeight: "600",
       cursor: "pointer",
       transition: "all 0.2s",
+      textDecoration: "none",
+      display: "inline-block",
     },
     noResults: {
       textAlign: "center",
@@ -238,8 +245,15 @@ export default function HomePage() {
       <div style={styles.content}>
         {user.isAdmin && (
           <div style={styles.header}>
-            <button style={styles.addButton}>Add Product</button>
-            <button style={styles.addButton}>Add Category</button>
+            <Link to="/admin/products" style={styles.addButton}>
+              Add Product
+            </Link>
+            <button 
+              style={styles.addButton}
+              onClick={() => setShowCategoriesModal(true)}
+            >
+              Add Category
+            </button>
           </div>
         )}
         <div style={styles.filterSection}>
@@ -340,6 +354,14 @@ export default function HomePage() {
           </div>
         )}
       </div>
+
+      <CategoriesModal 
+        isOpen={showCategoriesModal}
+        onClose={() => {
+          setShowCategoriesModal(false);
+        }}
+        categories={categories}
+      />
     </div>
   );
 }

@@ -9,10 +9,10 @@ const CategoryProvider = ({ children }) => {
     categoryReducer,
     categoriesInitialState
   );
-  const { getCategories } = useCategories(dispatch);
+  const { getCategories, createOneCategory, deleteOneCategory } = useCategories(dispatch);
 
   return (
-    <CategoryContext.Provider value={{ categoryState, getCategories }}>
+    <CategoryContext.Provider value={{ categoryState, getCategories, createOneCategory, deleteOneCategory }}>
       {children}
     </CategoryContext.Provider>
   );

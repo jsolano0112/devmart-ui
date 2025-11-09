@@ -23,14 +23,6 @@ export const categoryReducer = (state = categoriesInitialState, action = {}) => 
                 errorMessage: null
             };
         
-        case categoryTypes.createCategory:
-            return {
-                ...state,
-                loading: false,
-                categories: [...state.categories, action.payload],
-                errorMessage: null
-            };
-        
         case categoryTypes.deleteCategory:
             return {
                 ...state,
