@@ -13,9 +13,7 @@ export default function HomePage() {
   } = useContext(ProductContext);
   const {
     categoryState: { categories },
-    getCategories,
-    createCategory,
-    deleteCategory,
+    getCategories
   } = useContext(CategoryContext);
   const {
     userState: { user },
@@ -361,11 +359,8 @@ export default function HomePage() {
         isOpen={showCategoriesModal}
         onClose={() => {
           setShowCategoriesModal(false);
-          getCategories(); 
         }}
         categories={categories}
-        onAddCategory={createCategory}
-        onDeleteCategory={deleteCategory}
       />
     </div>
   );
