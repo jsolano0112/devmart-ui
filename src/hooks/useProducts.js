@@ -1,13 +1,13 @@
 import { productTypes } from "../types/productTypes";
-import { getAllProducts } from "../api/productsService";
+import { createProduct, deleteProductBySku, getAllProducts, updateProduct } from "../api/productsService";
 
-export const useProducts= (dispatch) => {
+export const useProducts = (dispatch) => {
     const getProducts = async () => {
 
         dispatch({ type: productTypes.loadingProducts });
-        
+
         const { ok, products, errorMessage } = await getAllProducts();
-        
+
         if (!ok) {
             dispatch({
                 type: productTypes.productsError,
@@ -22,110 +22,61 @@ export const useProducts= (dispatch) => {
         return true;
     };
 
-    // const getProductById = async (id) => {
-    //     dispatch({ type: productTypes.loadingProducts });
-        
-    //     try {
-    //         // Aquí puedes implementar la llamada individual al producto
-    //         // Por ahora usaremos el array existente
-    //         const product = productState.products.find(p => p.id === id);
-            
-    //         if (product) {
-    //             dispatch({
-    //                 type: productTypes.getProductById,
-    //                 payload: product
-    //             });
-    //             return true;
-    //         } else {
-    //             dispatch({
-    //                 type: productTypes.productsError,
-    //                 payload: "Producto no encontrado"
-    //             });
-    //             return false;
-    //         }
-    //     } catch (error) {
-    //         dispatch({
-    //             type: productTypes.productsError,
-    //             payload: "Error al obtener el producto"
-    //         });
-    //         return false;
-    //     }
-    // };
+    const createOneProduct = async (newProduct) => {
+        dispatch({ type: productTypes.loadingProducts });
 
-    // const createProduct = async (productData) => {
-    //     dispatch({ type: productTypes.loadingProducts });
-        
-    //     try {
-    //         // Implementar llamada a API para crear producto
-    //         // const { ok, data, errorMessage } = await createProductAPI(productData);
-            
-    //         // Simulación por ahora
-    //         const newProduct = {
-    //             id: Date.now(), // Temporal
-    //             ...productData
-    //         };
-            
-    //         dispatch({
-    //             type: productTypes.createProduct,
-    //             payload: newProduct
-    //         });
-    //         return true;
-    //     } catch (error) {
-    //         dispatch({
-    //             type: productTypes.productsError,
-    //             payload: "Error al crear el producto"
-    //         });
-    //         return false;
-    //     }
-    // };
+        const { ok, data, errorMessage } = await createProduct(newProduct);
+        console.log(data)
+        if (!ok) {
+            dispatch({
+                type: productTypes.productsError,
+                payload: errorMessage
+            });
+            return false;
+        }
 
-    // const updateProduct = async (id, productData) => {
-    //     dispatch({ type: productTypes.loadingProducts });
-        
-    //     try {
-    //         // Implementar llamada a API para actualizar producto
-    //         // const { ok, data, errorMessage } = await updateProductAPI(id, productData);
-            
-    //         // Simulación por ahora
-    //         const updatedProduct = {
-    //             id,
-    //             ...productData
-    //         };
-            
-    //         dispatch({
-    //             type: productTypes.updateProduct,
-    //             payload: updatedProduct
-    //         });
-    //         return true;
-    //     } catch (error) {
-    //         dispatch({
-    //             type: productTypes.productsError,
-    //             payload: "Error al actualizar el producto"
-    //         });
-    //         return false;
-    //     }
-    // };
+        setTimeout(async () => {
+            await getProducts();
+        }, 500);
 
-    // const deleteProduct = async (id) => {
-    //     dispatch({ type: productTypes.loadingProducts });
-        
-    //     try {
-    //         // Implementar llamada a API para eliminar producto
-    //         // const { ok, errorMessage } = await deleteProductAPI(id);
-            
-    //         // Simulación por ahora
-    //         dispatch({
-    //             type: productTypes.deleteProduct,
-    //             payload: id
-    //         });
-    //         return true;
-    //     } catch (error) {
-    //         dispatch({
-    //             type: productTypes.productsError,
-    //             payload: "Error al eliminar el producto"
-    //         });
-    //         return false;
-    //     }
-    // };
-    return {getProducts}
+
+        return true;
+    };
+
+    const updateOneProduct = async (productData) => {
+        dispatch({ type: productTypes.loadingProducts });
+        const { ok, data, errorMessage } = await updateProduct(productData);
+        console.log(data)
+        if (!ok) {
+            dispatch({
+                type: productTypes.productsError,
+                payload: errorMessage
+            });
+            return false;
+        }
+        dispatch({
+            type: productTypes.updateProduct,
+            payload: productData
+        });
+        return true
+    };
+
+    const deleteOneProduct = async (sku) => {
+        dispatch({ type: productTypes.loadingProducts });
+        const { ok, data, errorMessage } = await deleteProductBySku(sku);
+        console.log(data)
+        if (!ok) {
+            dispatch({
+                type: productTypes.productsError,
+                payload: errorMessage
+            });
+            return false;
+        }
+        dispatch({
+            type: productTypes.deleteProduct,
+            payload: sku
+        });
+        return true
+    };
+    return { getProducts, createOneProduct, deleteOneProduct, updateOneProduct }
 };

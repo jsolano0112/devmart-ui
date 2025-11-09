@@ -16,10 +16,10 @@ const ProductProvider = ({ children }) => {
     productReducer,
     productInitialState
   );
-  const { getProducts } = useProducts(dispatch);
+  const { getProducts, deleteOneProduct, createOneProduct, updateOneProduct } = useProducts(dispatch);
 
   return (
-    <ProductContext.Provider value={{ productState, getProducts }}>
+    <ProductContext.Provider value={{ productState, getProducts, deleteOneProduct, createOneProduct,updateOneProduct}}>
       {children}
     </ProductContext.Provider>
   );

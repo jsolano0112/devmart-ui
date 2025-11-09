@@ -5,9 +5,10 @@ import LoginPage from "../pages/LoginPage";
 import SignUpPage from "../pages/SignUpPage";
 import HomePage from "../pages/HomePage";
 import { Navbar } from "../components/NavbarComponent";
+import ManageProductsPage from "../pages/ManageProductsPage";
 export const AppRouter = () => {
   const {
-    userState: { logged },
+    userState: { logged, user },
   } = useContext(UserContext);
   if (!logged) {
     return (
@@ -26,6 +27,12 @@ export const AppRouter = () => {
       <Routes>
         <Route path="/*" element={<Navigate to="/" />} />
         <Route path="/" element={<HomePage />} />
+        {user.isAdmin && (
+          <>
+            <Route path="/admin/products" element={<ManageProductsPage />} />
+            <Route path="/admin/orders" element={<ManageProductsPage />} />
+          </>
+        )}
       </Routes>
     </>
   );
