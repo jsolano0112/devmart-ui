@@ -4,7 +4,7 @@ import { signUp } from "../api/userService"
 export const useAuthenticate = (dispatch) => {
 
     const login = async ({ email, password }) => {
-        const { ok, uid, photoURL, displayName, errorMessage } = await loginUser(email, password)
+        const { ok, isAdmin, name, errorMessage, firstname, lastname, id } = await loginUser(email, password)
 
         if (!ok) {
             const action = {
@@ -16,7 +16,7 @@ export const useAuthenticate = (dispatch) => {
             return { ok: false, errorMessage };
         }
 
-        const userPayload = { email, uid, displayName, photoURL }
+        const userPayload = { email, isAdmin, name, firstname, lastname, id }
 
         const action = {
             type: authTypes.login,
@@ -50,5 +50,5 @@ export const useAuthenticate = (dispatch) => {
 
         return { ok: true, errorMessage: null }
     }
-    return {login, logout, signUpUser}
+    return { login, logout, signUpUser }
 }
