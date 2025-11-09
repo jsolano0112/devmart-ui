@@ -6,33 +6,28 @@ import { Link } from "react-router-dom";
 import CategoriesModal from "../components/ManageCategoryComponent";
 export default function HomePage() {
   const {
-    productState: { products },
+    productState: { products, loadingProducts },
     getProducts,
-    loadingProducts,
     error,
   } = useContext(ProductContext);
   const {
     categoryState: { categories },
-    getCategories
+    getCategories,
   } = useContext(CategoryContext);
   const {
     userState: { user },
   } = useContext(UserContext);
-  
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [cart, setCart] = useState([]);
   const [showCategoriesModal, setShowCategoriesModal] = useState(false);
-  
-  const allCategories = [{ id: "all", name: "All" }, ...(categories || [])];
-  
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      getProducts();
-      getCategories();
-    }, 1000);
 
-    return () => clearTimeout(timer);
+  const allCategories = [{ id: "all", name: "All" }, ...(categories || [])];
+
+  useEffect(() => {
+    getProducts();
+    getCategories();
   }, []);
 
   const filteredProducts = (products || []).filter((product) => {
@@ -223,14 +218,6 @@ export default function HomePage() {
     },
   };
 
-  if (loadingProducts) {
-    return (
-      <div style={{ textAlign: "center", padding: "80px", color: "#64748b" }}>
-        <h2>Loading products...</h2>
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div style={{ textAlign: "center", padding: "80px", color: "#ef4444" }}>
@@ -248,7 +235,7 @@ export default function HomePage() {
             <Link to="/admin/products" style={styles.addButton}>
               Add Product
             </Link>
-            <button 
+            <button
               style={styles.addButton}
               onClick={() => setShowCategoriesModal(true)}
             >
@@ -288,7 +275,13 @@ export default function HomePage() {
           Showing {filteredProducts.length} of {products?.length || 0} products
         </div>
 
-        {filteredProducts.length > 0 ? (
+        {loadingProducts ? (
+          <div
+            style={{ textAlign: "center", padding: "80px", color: "#64748b" }}
+          >
+            <h2>Loading products...</h2>
+          </div>
+        ) : filteredProducts.length > 0 ? (
           <div style={styles.productsGrid}>
             {filteredProducts.map((product) => (
               <div
@@ -355,7 +348,7 @@ export default function HomePage() {
         )}
       </div>
 
-      <CategoriesModal 
+      <CategoriesModal
         isOpen={showCategoriesModal}
         onClose={() => {
           setShowCategoriesModal(false);
