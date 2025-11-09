@@ -3,7 +3,7 @@ import { productTypes } from "../types/productTypes";
 const productInitialState = {
     products: [],
     selectedProduct: null,
-    loading: false,
+    loadingProducts: false,
     errorMessage: null
 };
 
@@ -12,14 +12,14 @@ export const productReducer = (state = productInitialState, action = {}) => {
         case productTypes.loadingProducts:
             return {
                 ...state,
-                loading: true,
+                loadingProducts: true,
                 errorMessage: null
             };
         
         case productTypes.getProducts:
             return {
                 ...state,
-                loading: false,
+                loadingProducts: false,
                 products: action.payload,
                 errorMessage: null
             };
@@ -27,7 +27,7 @@ export const productReducer = (state = productInitialState, action = {}) => {
         case productTypes.getProductById:
             return {
                 ...state,
-                loading: false,
+                loadingProducts: false,
                 selectedProduct: action.payload,
                 errorMessage: null
             };
@@ -35,7 +35,7 @@ export const productReducer = (state = productInitialState, action = {}) => {
         case productTypes.createProduct:
             return {
                 ...state,
-                loading: false,
+                loadingProducts: false,
                 products: [...state.products, action.payload],
                 errorMessage: null
             };
@@ -43,7 +43,7 @@ export const productReducer = (state = productInitialState, action = {}) => {
         case productTypes.updateProduct:
             return {
                 ...state,
-                loading: false,
+                loadingProducts: false,
                 products: state.products.map(product => 
                     product.id === action.payload.id ? action.payload : product
                 ),
@@ -54,7 +54,7 @@ export const productReducer = (state = productInitialState, action = {}) => {
         case productTypes.deleteProduct:
             return {
                 ...state,
-                loading: false,
+                loadingProducts: false,
                 products: state.products.filter(product => product.id !== action.payload),
                 selectedProduct: state.selectedProduct?.id === action.payload ? null : state.selectedProduct,
                 errorMessage: null
@@ -63,7 +63,7 @@ export const productReducer = (state = productInitialState, action = {}) => {
         case productTypes.productsError:
             return {
                 ...state,
-                loading: false,
+                loadingProducts: false,
                 errorMessage: action.payload
             };
         

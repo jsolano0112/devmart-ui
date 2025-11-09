@@ -5,12 +5,11 @@ import { useProducts } from "../hooks/useProducts";
 const productInitialState = {
   products: [],
   selectedProduct: null,
-  loading: false,
+  loadingProducts: false,
   errorMessage: null,
 };
 
 const ProductContext = createContext();
-
 const ProductProvider = ({ children }) => {
   const [productState, dispatch] = useReducer(
     productReducer,
