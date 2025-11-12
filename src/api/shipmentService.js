@@ -95,10 +95,10 @@ export const updateShipments = async (productData) => {
   }
 };
 
-// Nueva: actualizar estado de un shipment por id
-export const updateShipmentStatus = async (shipmentId, status, updatedAt) => {
+// Nueva: actualizar estado de un shipment por trackingId
+export const updateShipmentStatus = async (trackingId, status, updatedAt) => {
   try {
-    const { data } = await api.put(`/shipments/${shipmentId}`, { status, updatedAt });
+    const { data } = await api.put(`/shipments/${trackingId}`, { status, updatedAt });
     return {
       ok: true,
       shipment: data.data || data,

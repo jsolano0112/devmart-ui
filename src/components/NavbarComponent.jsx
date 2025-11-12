@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { UserContext } from "../contexts/UserProvider";
 
@@ -84,6 +84,7 @@ export const Navbar = () => {
       display: "flex",
       alignItems: "center",
       gap: "12px",
+      position: "relative",
     },
     userInfo: {
       display: "flex",
@@ -137,6 +138,91 @@ export const Navbar = () => {
     mobileMenuOpen: {
       display: "flex",
     },
+    notifBtn: {
+      padding: "8px 12px",
+      background: "transparent",
+      border: "none",
+      color: "white",
+      cursor: "pointer",
+      position: "relative",
+      fontSize: 18,
+    },
+    notifBadge: {
+      position: "absolute",
+      top: -6,
+      right: -6,
+      background: "#ef4444",
+      color: "white",
+      borderRadius: "50%",
+      padding: "2px 6px",
+      fontSize: 12,
+      fontWeight: 700,
+    },
+    notifDropdown: {
+      position: "absolute",
+      right: 0,
+      marginTop: 8,
+      width: 320,
+      background: "white",
+      color: "#0f172a",
+      border: "1px solid #e5e7eb",
+      borderRadius: 8,
+      boxShadow: "0 8px 24px rgba(2,6,23,0.08)",
+      zIndex: 2000,
+      maxHeight: 360,
+      overflow: "auto",
+    },
+    notifItem: {
+      padding: "10px 12px",
+      borderBottom: "1px solid #f3f4f6",
+    },
+  };
+
+  // Notification state and socket
+  const [notifications, setNotifications] = useState([]);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const socketRef = useRef(null);
+
+  const userId = userState?.user?.id ?? userState?.id ?? null;
+
+  useEffect(() => {
+    let mounted = true;
+    const SOCKET_URL = process.env.REACT_APP_SOCKET_SERVER_URL || "http://localhost:5000";
+    const connect = async () => {
+      try {
+        // dynamic import so build won't break if package missing
+        const { io } = await import("socket.io-client");
+        socketRef.current = io(SOCKET_URL, { transports: ["websocket"] });
+        socketRef.current.on("connect", () => {
+          // join personal room if userId available
+          if (userId) {
+            socketRef.current.emit("identify", userId);
+          }
+        });
+        socketRef.current.on("notification", (payload) => {
+          if (!mounted) return;
+          setNotifications((prev) => [payload, ...prev]);
+        });
+        socketRef.current.on("disconnect", () => {
+        });
+        socketRef.current.on("connect_error", (err) => {
+        });
+      } catch (e) {
+      }
+    };
+    connect();
+    return () => {
+      mounted = false;
+      try {
+        socketRef.current?.disconnect();
+      } catch (e) {}
+    };
+  }, [userId]);
+
+  const toggleNotifications = () => {
+    setIsNotifOpen((s) => !s);
+    if (!isNotifOpen) {
+    }
   };
 
   // Media query for mobile
@@ -193,6 +279,33 @@ export const Navbar = () => {
                   <span style={styles.adminBadge}>ADMIN</span>
                 )}
               </div>
+
+              {/* Notifications button */}
+              <div style={{ position: "relative" }}>
+                <button style={styles.notifBtn} onClick={toggleNotifications} aria-label="Notifications">
+                  🔔
+                  {notifications.length > 0 && (
+                    <span style={styles.notifBadge}>{notifications.length}</span>
+                  )}
+                </button>
+                {isNotifOpen && (
+                  <div style={styles.notifDropdown}>
+                    {notifications.length === 0 && (
+                      <div style={styles.notifItem}>No hay notificaciones</div>
+                    )}
+                    {notifications.map((n, i) => (
+                      <div key={i} style={styles.notifItem}>
+                        <div style={{ fontWeight: 700 }}>{n.type || n.title || "Notificación"}</div>
+                        <div style={{ color: "#374151", marginTop: 6 }}>{n.message}</div>
+                        {n.createdAt && (
+                          <div style={{ fontSize: 12, color: "#9ca3af", marginTop: 6 }}>{new Date(n.createdAt).toLocaleString()}</div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <button
                 style={styles.logoutBtn}
                 onClick={handleLogout}
