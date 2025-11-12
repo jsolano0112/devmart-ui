@@ -37,19 +37,24 @@ export default function TrackingAdminPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleStatusChange = async (shipmentId, newStatus, idx) => {
+  const handleStatusChange = async (trackingId, newStatus, idx) => {
+    console.log("[ADMIN PAGE] Status change: trackingId=", trackingId, "newStatus=", newStatus);
     const prev = shipments[idx];
     const updated = { ...prev, status: newStatus };
     // optimistically update
     const copy = [...shipments];
     copy[idx] = updated;
     setShipments(copy);
-    const res = await changeShipmentStatus(shipmentId, newStatus);
+    const res = await changeShipmentStatus(trackingId, newStatus);
+    console.log("[ADMIN PAGE] changeShipmentStatus response:", res);
     if (!res.ok) {
       // rollback
       copy[idx] = prev;
       setShipments(copy);
       setError(res.errorMessage || "No se pudo actualizar estado");
+      console.error("[ADMIN PAGE] Error updating status:", res.errorMessage);
+    } else {
+      console.log("[ADMIN PAGE] ✓ Status updated successfully for trackingId:", trackingId);
     }
   };
 
