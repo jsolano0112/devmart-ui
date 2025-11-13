@@ -1,5 +1,6 @@
 import { productTypes } from "../types/productTypes";
 import { createProduct, deleteProductBySku, getAllProducts, updateProduct } from "../api/productsService";
+import { getByTrackingNumber } from "../api/shipmentService";
 
 export const useProducts = (dispatch) => {
     const getProducts = async () => {
@@ -78,5 +79,11 @@ export const useProducts = (dispatch) => {
         });
         return true
     };
-    return { getProducts, createOneProduct, deleteOneProduct, updateOneProduct }
+    // Buscar envío por trackingNumber
+    const searchByTrackingNumber = async (trackingNumber) => {
+        if (!trackingNumber) return { ok: false, errorMessage: "Tracking number requerido" };
+        return await getByTrackingNumber(trackingNumber);
+    };
+
+    return { getProducts, createOneProduct, deleteOneProduct, updateOneProduct, searchByTrackingNumber }
 };
