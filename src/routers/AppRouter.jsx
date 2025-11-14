@@ -8,6 +8,10 @@ import { Navbar } from "../components/NavbarComponent";
 import ManageProductsPage from "../pages/ManageProductsPage";
 import TrackingPage from "../pages/TrackingUserPage";
 import TrackingAdminPage from "../pages/TrackingAdminPage";
+import CartPage from "../pages/CartPage";
+import CheckoutPage from "../pages/CheckoutPage";
+import OrdersPage from "../pages/OrdersPage";
+import ProfilePage from "../pages/ProfilePage";
 export const AppRouter = () => {
   const {
     userState: { logged, user },
@@ -29,7 +33,11 @@ export const AppRouter = () => {
       <Routes>
         <Route path="/*" element={<Navigate to="/" />} />
         <Route path="/" element={<HomePage />} />
-        <Route path="/orders" element={<TrackingPage />} />
+        <Route path="/cart" element={<CartPage />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/orders" element={<OrdersPage />} />
+        <Route path="/tracking" element={<TrackingPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
         {user.isAdmin && (
           <>
             <Route path="/admin/products" element={<ManageProductsPage />} />

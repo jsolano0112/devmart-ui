@@ -32,9 +32,9 @@ export const getAllShipments = async (page = 1, limit = 10) => {
   }
 };
 
-export const getByTrackingNumber = async (trakingNumber) => {
+export const getByTrackingNumber = async (trackingNumber) => {
   try {
-    const { data } = await api.get("/shipments/"+trakingNumber);
+    const { data } = await api.get(`/shipments/${trackingNumber}`);
     return {
       ok: true,
       tracking: data.data || data,      
@@ -48,17 +48,17 @@ export const getByTrackingNumber = async (trakingNumber) => {
 };
 
 
-export const createShipment = async (newProduct) => {
+export const createShipment = async (shipmentData) => {
   try {
-    const { data } = await api.post("/shipments", newProduct);
+    const { data } = await api.post("/shipments", shipmentData);
     return {
       ok: true,
-      products: data.data
+      shipment: data.data || data,
     };
   } catch (error) {
     return {
       ok: false,
-      errorMessage: error.response?.data?.errors?.[0]?.msg ?? error.response?.data?.error
+      errorMessage: error.response?.data?.errors?.[0]?.msg ?? error.response?.data?.error,
     };
   }
 };
