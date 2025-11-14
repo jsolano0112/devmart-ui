@@ -36,7 +36,7 @@ export default function TrackingPage() {
     setLoading(false);
 
     if (!res.ok) {
-      setError(res.errorMessage || "Error cargando envíos");
+      setError(res.errorMessage || "Error loading shipments");
       return;
     }
 
@@ -48,7 +48,7 @@ export default function TrackingPage() {
     setTrackingData(null);
 
     if (!trackingNumber.trim()) {
-      setError("Por favor, ingrese un número de guía válido");
+      setError("Please enter a valid tracking number");
       return;
     }
 
@@ -270,7 +270,7 @@ export default function TrackingPage() {
           }}
           onClick={() => setActiveTab("myShipments")}
         >
-          📦 Mis Envíos
+          My shipments
         </button>
         <button
           style={{
@@ -279,7 +279,7 @@ export default function TrackingPage() {
           }}
           onClick={() => setActiveTab("searchTracking")}
         >
-          🔍 Buscar por Guía
+          Search by guide
         </button>
       </div>
 
@@ -292,7 +292,7 @@ export default function TrackingPage() {
               {userShipments.length === 0 ? (
                 "Aún no tienes envíos"
               ) : (
-                `Mostrando ${userShipments.length} envío${userShipments.length !== 1 ? "s" : ""}`
+                `Showing ${userShipments.length} shipment ${userShipments.length !== 1 ? "s" : ""}`
               )}
             </div>
 
@@ -320,15 +320,15 @@ export default function TrackingPage() {
 
                   <div style={styles.shipmentMeta}>
                     <div style={styles.metaItem}>
-                      <span style={styles.metaLabel}>Orden</span>
+                      <span style={styles.metaLabel}>Order</span>
                       <span>#{shipment.orderId}</span>
                     </div>
                     <div style={styles.metaItem}>
-                      <span style={styles.metaLabel}>Transportista</span>
+                      <span style={styles.metaLabel}>Carrier</span>
                       <span>{shipment.carrier || "N/A"}</span>
                     </div>
                     <div style={styles.metaItem}>
-                      <span style={styles.metaLabel}>Fecha</span>
+                      <span style={styles.metaLabel}>Date</span>
                       <span>
                         {new Date(shipment.createdAt).toLocaleDateString("es-CO")}
                       </span>
@@ -372,7 +372,7 @@ export default function TrackingPage() {
             <div style={styles.searchBox}>
               <input
                 type="text"
-                placeholder="Ingresa tu número de guía (ej: TRK-20251110-94194)"
+                placeholder="Enter your tracking number (e.g., TRK-20251110-94194)"
                 value={trackingNumber}
                 onChange={(e) => setTrackingNumber(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && handleSearchTracking()}
@@ -383,7 +383,7 @@ export default function TrackingPage() {
                 onClick={handleSearchTracking}
                 disabled={loading}
               >
-                {loading ? "Buscando..." : "Buscar"}
+                {loading ? "Searching..." : "Search"}
               </button>
             </div>
 
@@ -430,19 +430,19 @@ export default function TrackingPage() {
 
                 <div style={styles.detailsBox}>
                   <div style={styles.detailRow}>
-                    <span style={styles.detailLabel}>Número de Guía:</span>
+                    <span style={styles.detailLabel}>Guide Number:</span>
                     <span style={styles.detailValue}>{trackingData.trackingId}</span>
                   </div>
                   <div style={styles.detailRow}>
-                    <span style={styles.detailLabel}>Transportista:</span>
+                    <span style={styles.detailLabel}>Carrier:</span>
                     <span style={styles.detailValue}>{trackingData.carrier || "N/A"}</span>
                   </div>
                   <div style={styles.detailRow}>
-                    <span style={styles.detailLabel}>ID de Orden:</span>
+                    <span style={styles.detailLabel}>Order ID:</span>
                     <span style={styles.detailValue}>{trackingData.orderId}</span>
                   </div>
                   <div style={styles.detailRow}>
-                    <span style={styles.detailLabel}>Fecha de Creación:</span>
+                    <span style={styles.detailLabel}>Created Date:</span>
                     <span style={styles.detailValue}>
                       {new Date(trackingData.createdAt).toLocaleDateString("es-CO", {
                         year: "numeric",
@@ -460,7 +460,7 @@ export default function TrackingPage() {
             {!trackingData && !loading && (
               <div style={styles.emptyState}>
                 <div style={styles.emptyIcon}>🔍</div>
-                <div>Ingresa un número de guía para buscar</div>
+                <div>Enter a tracking number to search</div>
               </div>
             )}
           </div>
