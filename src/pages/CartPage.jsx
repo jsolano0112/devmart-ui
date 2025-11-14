@@ -212,10 +212,9 @@ export default function CartPage() {
   if (cartState.items.length === 0) {
     return (
       <div style={styles.container}>
-        <div style={styles.header}>🛒 Tu Carrito</div>
         <div style={styles.cartEmpty}>
           <div style={{ fontSize: "48px", marginBottom: "12px" }}>📦</div>
-          <div style={{ marginBottom: "12px" }}>Tu carrito está vacío</div>
+          <div style={{ marginBottom: "12px" }}>Your cart is empty</div>
           <button
             onClick={() => navigate("/")}
             style={{
@@ -227,7 +226,7 @@ export default function CartPage() {
               cursor: "pointer",
             }}
           >
-            Continuar comprando
+           Continue shopping
           </button>
         </div>
       </div>
@@ -241,7 +240,6 @@ export default function CartPage() {
 
   return (
     <div style={styles.container}>
-      <div style={styles.header}>🛒 Tu Carrito ({cartState.items.length} productos)</div>
 
       {error && <div style={styles.error}>{error}</div>}
 

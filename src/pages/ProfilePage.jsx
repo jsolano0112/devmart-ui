@@ -8,7 +8,7 @@ export default function ProfilePage() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    fullName: userState?.user?.fullName || "",
+    fullName: `${userState?.user?.firstname} ${userState?.user?.lastname}` || "",
     email: userState?.user?.email || "",
     phone: userState?.user?.phone || "",
     address: userState?.user?.address || "",
@@ -226,7 +226,6 @@ export default function ProfilePage() {
 
   return (
     <div style={styles.container}>
-      <div style={styles.header}>👤 Mi Perfil</div>
 
       <div style={styles.card}>
         <div style={styles.section}>
@@ -235,7 +234,7 @@ export default function ProfilePage() {
               {userState?.user?.fullName?.charAt(0)?.toUpperCase() || "U"}
             </div>
             <div style={styles.userInfo}>
-              <div style={styles.userName}>{userState?.user?.fullName || "Usuario"}</div>
+              <div style={styles.userName}>{userState?.user?.firstname || "User"}</div>
               <div style={styles.userEmail}>{userState?.user?.email}</div>
               {userState?.user?.role === "ADMIN" && (
                 <span style={styles.badge}>👨‍💼 Administrador</span>
@@ -248,13 +247,13 @@ export default function ProfilePage() {
       <div style={styles.card}>
         <div style={styles.section}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div style={styles.sectionTitle}>Información Personal</div>
+            <div style={styles.sectionTitle}>Personal Information</div>
             {!isEditing && (
               <button
                 style={{ ...styles.button, ...styles.editButton }}
                 onClick={() => setIsEditing(true)}
               >
-                ✏️ Editar
+                Edit
               </button>
             )}
           </div>
@@ -262,7 +261,7 @@ export default function ProfilePage() {
           {isEditing ? (
             <>
               <div style={styles.formGroup}>
-                <label style={styles.label}>Nombre Completo</label>
+                <label style={styles.label}>Full Name</label>
                 <input
                   type="text"
                   name="fullName"
@@ -284,7 +283,7 @@ export default function ProfilePage() {
               </div>
 
               <div style={styles.formGroup}>
-                <label style={styles.label}>Teléfono</label>
+                <label style={styles.label}>Phone</label>
                 <input
                   type="tel"
                   name="phone"
@@ -296,7 +295,7 @@ export default function ProfilePage() {
               </div>
 
               <div style={styles.formGroup}>
-                <label style={styles.label}>Dirección</label>
+                <label style={styles.label}>Address</label>
                 <input
                   type="text"
                   name="address"
@@ -312,22 +311,22 @@ export default function ProfilePage() {
                   style={{ ...styles.button, ...styles.buttonSecondary }}
                   onClick={handleCancel}
                 >
-                  Cancelar
+                  Cancel
                 </button>
                 <button
                   style={{ ...styles.button, ...styles.buttonPrimary }}
                   onClick={handleSave}
                 >
-                  Guardar Cambios
+                  Save Changes
                 </button>
               </div>
             </>
           ) : (
             <div style={styles.infoGrid}>
               <div style={styles.infoBox}>
-                <div style={styles.infoLabel}>Nombre Completo</div>
+                <div style={styles.infoLabel}>Full Name</div>
                 <div style={styles.infoValue}>
-                  {userState?.user?.fullName || "No especificado"}
+                  {`${userState?.user?.firstname} ${userState?.user?.lastname}` || "Not specified"}
                 </div>
               </div>
               <div style={styles.infoBox}>
@@ -335,15 +334,15 @@ export default function ProfilePage() {
                 <div style={styles.infoValue}>{userState?.user?.email}</div>
               </div>
               <div style={styles.infoBox}>
-                <div style={styles.infoLabel}>Teléfono</div>
+                <div style={styles.infoLabel}>Phone</div>
                 <div style={styles.infoValue}>
-                  {userState?.user?.phone || "No especificado"}
+                  {userState?.user?.phone || "Not specified"}
                 </div>
               </div>
               <div style={styles.infoBox}>
-                <div style={styles.infoLabel}>Dirección</div>
+                <div style={styles.infoLabel}>Address</div>
                 <div style={styles.infoValue}>
-                  {userState?.user?.address || "No especificada"}
+                  {userState?.user?.address || "Not specified"}
                 </div>
               </div>
             </div>
@@ -353,42 +352,28 @@ export default function ProfilePage() {
 
       <div style={styles.card}>
         <div style={styles.section}>
-          <div style={styles.sectionTitle}>Información de la Cuenta</div>
+          <div style={styles.sectionTitle}>Account Information</div>
           <div style={styles.infoGrid}>
             <div style={styles.infoBox}>
-              <div style={styles.infoLabel}>Estado</div>
+              <div style={styles.infoLabel}>Status</div>
               <div style={styles.infoValue}>
                 {userState?.user?.active ? (
-                  <span style={{ color: "#10b981" }}>✓ Activa</span>
+                  <span style={{ color: "#10b981" }}>✓ Active</span>
                 ) : (
-                  <span style={{ color: "#ef4444" }}>✗ Inactiva</span>
+                  <span style={{ color: "#ef4444" }}>✗ Inactive</span>
                 )}
               </div>
             </div>
             <div style={styles.infoBox}>
               <div style={styles.infoLabel}>Rol</div>
               <div style={styles.infoValue}>
-                {userState?.user?.role === "ADMIN" ? "Administrador" : "Cliente"}
+                {userState?.user?.isAdmin === true ? "Admin" : "Client"}
               </div>
             </div>
             <div style={styles.infoBox}>
-              <div style={styles.infoLabel}>ID de Usuario</div>
+              <div style={styles.infoLabel}>User ID</div>
               <div style={styles.infoValue}>{userState?.user?.id}</div>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <div style={styles.card}>
-        <div style={styles.section}>
-          <div style={styles.sectionTitle}>Acciones de Seguridad</div>
-          <div style={styles.buttonGroup}>
-            <button
-              style={{ ...styles.button, ...styles.buttonDanger }}
-              onClick={handleLogout}
-            >
-              🚪 Cerrar Sesión
-            </button>
           </div>
         </div>
       </div>
