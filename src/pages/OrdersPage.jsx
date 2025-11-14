@@ -152,7 +152,7 @@ export default function OrdersPage() {
   if (orders.length === 0) {
     return (
       <div style={styles.container}>
-        <div style={styles.header}>📦 Mis Órdenes</div>
+        <div style={styles.header}>My orders</div>
         <div style={styles.empty}>
           <div style={{ fontSize: "48px", marginBottom: "12px" }}>📋</div>
           <div>Aún no tienes órdenes</div>
@@ -163,7 +163,7 @@ export default function OrdersPage() {
 
   return (
     <div style={styles.container}>
-      <div style={styles.header}>📦 Mis Órdenes ({orders.length})</div>
+      <div style={styles.header}>My orders ({orders.length})</div>
 
       <div style={styles.ordersList}>
         {orders.map((order) => (
@@ -174,7 +174,7 @@ export default function OrdersPage() {
             onMouseLeave={(e) => (e.currentTarget.style = styles.orderCard)}
           >
             <div style={styles.orderHeader}>
-              <div style={styles.orderId}>Orden #{order.id}</div>
+              <div style={styles.orderId}>Order #{order.id}</div>
               <div
                 style={{
                   ...styles.orderStatus,
@@ -187,11 +187,11 @@ export default function OrdersPage() {
 
             <div style={styles.orderMeta}>
               <div>
-                <div style={{ color: "#1e293b", fontWeight: "600" }}>Fecha</div>
+                <div style={{ color: "#1e293b", fontWeight: "600" }}>Date</div>
                 {new Date(order.createdAt).toLocaleDateString("es-CO")}
               </div>
               <div>
-                <div style={{ color: "#1e293b", fontWeight: "600" }}>Dirección</div>
+                <div style={{ color: "#1e293b", fontWeight: "600" }}>Address</div>
                 <div style={{ maxWidth: "150px", overflow: "hidden", textOverflow: "ellipsis" }}>
                   {order.address || "N/A"}
                 </div>

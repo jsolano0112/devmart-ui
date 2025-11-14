@@ -261,7 +261,6 @@ export default function TrackingPage() {
 
   return (
     <div style={styles.container}>
-      <div style={styles.header}>📍 Seguimiento de Envíos</div>
 
       <div style={styles.tabs}>
         <button
