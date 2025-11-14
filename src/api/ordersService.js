@@ -35,7 +35,7 @@ export const getOrderById = async (orderId) => {
 // Get all orders for a user
 export const getUserOrders = async (userId) => {
   try {
-    const { data } = await api.get(`/orders/${userId}`);
+    const { data } = await api.get(`/orders/user/${userId}`);
     console.log("Orders response:", data);
     
     // Manejar diferentes formatos de respuesta
