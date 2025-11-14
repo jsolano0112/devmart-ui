@@ -1,0 +1,303 @@
+# 🛍️ Diagrama del Flujo de Compra DevMart
+
+## Flujo Principal
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        FLUJO COMPLETO DE COMPRA                          │
+└─────────────────────────────────────────────────────────────────────────┘
+
+1. SELECCIONAR PRODUCTOS
+   ┌──────────────────┐
+   │   HomePage       │
+   │                  │
+   │ Ver Productos    │──┐
+   │ (ProductCard)    │  │ addItem(product, qty)
+   └──────────────────┘  │
+                         ▼
+                    ┌────────────────┐
+                    │  CartContext   │
+                    │                │
+                    │ Guardar Items  │
+                    │ + localStorage │
+                    │ + Congelar $   │
+                    │ + Validar Stock│
+                    └────────────────┘
+                         │
+                         ▼
+
+2. REVISAR CARRITO
+   ┌──────────────────┐
+   │   CartPage       │
+   │                  │
+   │ Ver Items        │◄─┐
+   │ ➕➖ Cantidad   │  │ updateQuantity
+   │ ❌ Eliminar     │  │ removeItem
+   │ 💰 Totales      │──┘
+   │ ✅ Checkout     │
+   └──────────────────┘
+           │
+           ▼
+
+3. COMPLETAR CHECKOUT
+   ┌──────────────────────────────────┐
+   │      CheckoutPage                │
+   │                                  │
+   │ Paso 1: 📍 Dirección de Envío   │
+   │ Paso 2: 💳 Método de Pago       │
+   │ Paso 3: 👁️  Revisar Orden       │
+   │ Paso 4: ✅ Confirmar             │
+   └──────────────────────────────────┘
+           │
+           │ createNewOrder(orderData)
+           ▼
+   
+4. CREAR ORDEN (Backend)
+   ┌──────────────────────────────────┐
+   │   POST /orders                   │
+   │                                  │
+   │ {                                │
+   │   userId: 1,                     │
+   │   products: [...],               │
+   │   paymentMethod: 1,              │
+   │   address: "...",                │
+   │   status: "PENDIENTE",           │
+   │   total: 9180000                 │
+   │ }                                │
+   └──────────────────────────────────┘
+           │
+           │ Backend Crea Orden
+           │ Retorna: order (id: 1)
+           ▼
+   
+5. CREAR ENVÍO (Automático)
+   ┌──────────────────────────────────┐
+   │   POST /shipments                │
+   │                                  │
+   │ {                                │
+   │   orderId: 1,                    │
+   │   status: "PENDIENTE",           │
+   │   carrier: "Por definir",        │
+   │   trackingId: "TRK-..."          │
+   │ }                                │
+   └──────────────────────────────────┘
+           │
+           │ Backend Crea Envío
+           │ Retorna: shipment
+           ▼
+
+6. CONFIRMACIÓN
+   ┌──────────────────────────────────┐
+   │      Pantalla de Éxito            │
+   │                                  │
+   │ ✅ Orden Creada                   │
+   │    # 1                           │
+   │                                  │
+   │ 📦 Envío Asignado                 │
+   │    TRK-2025-11-14-12345          │
+   │                                  │
+   │ → Ver mis órdenes                │
+   │ → Rastrear envío                 │
+   └──────────────────────────────────┘
+           │
+           ├─────────────┬────────────┐
+           ▼             ▼            ▼
+        OrdersPage  TrackingPage   ProfilePage
+
+
+═══════════════════════════════════════════════════════════════════════════
+
+COMPONENTES Y CONTEXTOS INVOLUCRADOS
+
+ProductCard                CartPage               CheckoutPage
+    │                          │                       │
+    └──────────────────────────┴───────────────────────┘
+                               │
+                        CartContext
+                          (items)
+                               │
+                ┌──────────────┼──────────────┐
+                ▼              ▼              ▼
+            UserContext   useOrders    shipmentService
+             (user)      (hooks)      (api calls)
+                │              │              │
+                └──────────────┴──────────────┘
+                        │
+                Backend API
+
+
+═══════════════════════════════════════════════════════════════════════════
+
+FLUJO DE DATOS - ESTRUCTURA
+
+ORDEN CREADA:
+┌────────────────────────────────────────────────────────────────┐
+│                                                                │
+│  id: 1                                                         │
+│  userId: 1  ─────────────────────────────┐                    │
+│  products: [                             │                    │
+│    { sku: "64b9e8f2...", count: 2 },     │                    │
+│    { sku: "64b9e8f2...", count: 1 }      │                    │
+│  ]                                       │                    │
+│  paymentMethod: 1 (Tarjeta de Crédito)   │                    │
+│  address: "123 Main Street..."           │                    │
+│  status: "PENDIENTE"                     │                    │
+│  total: 9,180,000 COP                    │                    │
+│  createdAt: "2025-11-11T23:50:41.587Z"   │                    │
+│  updatedAt: "2025-11-11T23:50:41.587Z"   │                    │
+│                                          │                    │
+└────────────────────────────────────────────────────────────────┘
+                                           │
+                      ┌────────────────────┘
+                      │
+                      ▼
+
+ENVÍO CREADO:
+┌────────────────────────────────────────────────────────────────┐
+│                                                                │
+│  id: 1                                                         │
+│  orderId: 1  ────────┐  (FK a Orders)                         │
+│  status: "PENDIENTE"  │                                        │
+│  carrier: "Servientrega"                                       │
+│  trackingId: "TRK-20251011-00046"                             │
+│  createdAt: "2025-11-10T22:49:36.790Z"                        │
+│  updatedAt: "2025-11-14T04:18:29.254Z"                        │
+│                                                                │
+└────────────────────────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════════
+
+PARÁMETROS DE NEGOCIO
+
+CARRITO:
+  • Expiración: 24 horas de inactividad
+  • Congelación de precio: 2 horas por item
+  • Persistencia: localStorage (key: devmart_cart)
+
+ORDEN:
+  • Mínimo: $50,000 COP
+  • Estados: PENDIENTE → PREPARANDO → EN_TRANSITO → EN_ENTREGA → ENTREGADO
+  • Cancelable: SÍ (estado: CANCELADO)
+
+ENVÍO:
+  • Envío gratis: Si total ≥ $50,000 COP
+  • Envío pagado: 5% o $10,000 mín (lo que sea mayor)
+  • Carrier: Se define automáticamente o por admin
+
+PRODUCTO:
+  • SKU: Identificador único
+  • Stock: Se valida en carrito y checkout
+
+
+═══════════════════════════════════════════════════════════════════════════
+
+ARCHIVOS CLAVE DEL PROYECTO
+
+Contextos:
+  • src/contexts/CartProvider.jsx          → Gestión del carrito
+  • src/contexts/UserProvider.jsx          → Información del usuario
+  • src/contexts/ProductProvider.jsx       → Catálogo de productos
+
+Hooks:
+  • src/hooks/useOrders.js                 → Crear y obtener órdenes
+  • src/hooks/useShipments.js              → Gestión de envíos
+  • src/hooks/useCategories.js             → Categorías
+
+Servicios:
+  • src/api/ordersService.js               → API de órdenes
+  • src/api/shipmentService.js             → API de envíos
+  • src/api/productsService.js             → API de productos
+  • src/api/apiClient.js                   → Cliente HTTP (Axios)
+
+Páginas:
+  • src/pages/CartPage.jsx                 → Carrito
+  • src/pages/CheckoutPage.jsx             → Checkout
+  • src/pages/OrdersPage.jsx               → Mis órdenes
+  • src/pages/TrackingUserPage.jsx         → Rastreo de envíos
+  • src/pages/ProfilePage.jsx              → Perfil de usuario
+
+Reductores:
+  • src/reducers/cartReducer.js            → Lógica del carrito
+  • src/reducers/authReducer.js            → Lógica de autenticación
+  • src/reducers/productReducer.js         → Lógica de productos
+
+
+═══════════════════════════════════════════════════════════════════════════
+
+VALIDACIONES EN CHECKOUT
+
+Paso 1 - Dirección:
+  ✓ Mínimo 10 caracteres
+  ✓ Requerida
+
+Paso 2 - Pago:
+  ✓ Seleccionar método (Tarjeta o Transferencia)
+
+Paso 3 - Revisión:
+  ✓ Mostrar resumen completo
+  ✓ Confirmar totales
+
+Restricciones de Orden:
+  ✓ Mínimo $50,000 COP
+  ✓ Al menos 1 producto
+  ✓ Usuario autenticado
+
+
+═══════════════════════════════════════════════════════════════════════════
+
+ESTADOS POSIBLES
+
+ORDEN:
+  PENDIENTE      → Orden acaba de crearse
+  PREPARANDO     → Se está preparando en almacén
+  EN_TRANSITO    → En camino al cliente
+  EN_ENTREGA     → Llegó al domicilio
+  ENTREGADO      → Entregada al cliente
+  CANCELADO      → Orden cancelada
+
+ENVÍO:
+  PENDIENTE      → Envío creado, sin asignar carrier
+  PREPARANDO     → Se prepara el producto para envío
+  EN_TRANSITO    → En proceso de envío
+  EN_ENTREGA     → En puerta del cliente
+  ENTREGADO      → Entregado exitosamente
+  CANCELADO      → Envío cancelado
+
+
+═══════════════════════════════════════════════════════════════════════════
+```
+
+## 🔍 Pruebas Recomendadas
+
+### Test 1: Flujo Completo
+1. Agregar 2 productos al carrito
+2. Ir a checkout
+3. Completar dirección (>10 chars)
+4. Seleccionar método de pago
+5. Confirmar orden
+6. ✅ Debe aparecer confirmación con número de orden y trackingId
+
+### Test 2: Visualizar Orden
+1. Ir a "Mis Órdenes"
+2. ✅ Debe aparecer la orden recién creada
+3. ✅ Status debe ser "PENDIENTE"
+4. ✅ Total debe coincidir
+
+### Test 3: Rastrear Envío
+1. Ir a "Tracking" → "Mis Envíos"
+2. ✅ Debe aparecer el envío asociado a la orden
+3. ✅ Status debe ser "PENDIENTE"
+4. ✅ TrackingId debe coincidir con la confirmación
+
+### Test 4: Buscar por Guía
+1. Copiar el trackingId de la confirmación
+2. Ir a "Tracking" → "Buscar por Guía"
+3. Ingresar el trackingId
+4. ✅ Debe mostrar los detalles del envío
+
+---
+
+**Fecha de Creación:** 2025-11-14
+**Versión:** 1.0
+**Estado:** Funcional ✅

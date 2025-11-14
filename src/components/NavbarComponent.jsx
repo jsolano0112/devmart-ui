@@ -1,10 +1,12 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { UserContext } from "../contexts/UserProvider";
+import { CartContext } from "../contexts/CartProvider";
 
 export const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { userState, logout } = useContext(UserContext);
+  const { getItemCount } = useContext(CartContext);
   const location = useLocation();
 
   const handleLogout = () => {
@@ -17,6 +19,7 @@ export const Navbar = () => {
     { path: "/", label: "Home", icon: "🏠" },
     { path: "/cart", label: "Cart", icon: "🛒" },
     { path: "/orders", label: "My Orders", icon: "📦" },
+    { path: "/tracking", label: "Tracking", icon: "📍" },
     { path: "/profile", label: "Profile", icon: "👤" },
   ];
 
@@ -252,6 +255,7 @@ export const Navbar = () => {
                   style={{
                     ...styles.navLink,
                     ...(isActive(route.path) ? styles.navLinkActive : {}),
+                    position: "relative",
                   }}
                   onMouseEnter={(e) => {
                     if (!isActive(route.path)) {
@@ -266,6 +270,26 @@ export const Navbar = () => {
                 >
                   <span>{route.icon}</span>
                   {route.label}
+                  {route.path === "/cart" && getItemCount() > 0 && (
+                    <span style={{
+                      background: "#ef4444",
+                      color: "white",
+                      borderRadius: "50%",
+                      width: "20px",
+                      height: "20px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "12px",
+                      fontWeight: "bold",
+                      marginLeft: "4px",
+                      position: "absolute",
+                      top: "-8px",
+                      right: "-8px",
+                    }}>
+                      {getItemCount()}
+                    </span>
+                  )}
                 </Link>
               ))}
             </div>
