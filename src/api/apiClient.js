@@ -38,7 +38,6 @@ export const clearAuthTokens = () => {
 
 // ================= BASE URL DINÁMICA =================
 const getBaseURL = (url = "") => {
-  console.log(url)
   if (url.includes('auth') || url.includes('users')) {
     return environment.USERS_API;
   }
