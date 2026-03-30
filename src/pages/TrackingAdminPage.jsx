@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useShipments } from "../hooks/useShipments";
-
+import { useNotifications } from "../hooks/useNotifications";
+import { buildNotificationPayload } from "../helpers/buildNotificationPayload";
 const validStates = [
   "PENDIENTE",
   "PREPARANDO",
@@ -11,6 +12,7 @@ const validStates = [
 
 export default function TrackingAdminPage() {
   const { fetchShipments, changeShipmentStatus } = useShipments();
+  const { createNotificationForUser } = useNotifications();
   const [shipments, setShipments] = useState([]);
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
@@ -37,8 +39,13 @@ export default function TrackingAdminPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleStatusChange = async (trackingId, newStatus, idx) => {
-    console.log("[ADMIN PAGE] Status change: trackingId=", trackingId, "newStatus=", newStatus);
+  const handleStatusChange = async (trackingId, newStatus, idx, userId) => {
+    console.log(
+      "[ADMIN PAGE] Status change: trackingId=",
+      trackingId,
+      "newStatus=",
+      newStatus,
+    );
     const prev = shipments[idx];
     const updated = { ...prev, status: newStatus };
     // optimistically update
@@ -54,53 +61,107 @@ export default function TrackingAdminPage() {
       setError(res.errorMessage || "No se pudo actualizar estado");
       console.error("[ADMIN PAGE] Error updating status:", res.errorMessage);
     } else {
-      console.log("[ADMIN PAGE] ✓ Status updated successfully for trackingId:", trackingId);
+      console.log('crear notificacion')
+      const payload = buildNotificationPayload(
+        newStatus
+      );
+      const res = await createNotificationForUser(payload.type, payload.message, userId, new Date(), false);
+      console.log({res})
+      console.log(
+        "[ADMIN PAGE] ✓ Status updated successfully for trackingId:",
+        trackingId,
+      );
     }
   };
 
-  const totalPages = meta && meta.total && meta.limit ? Math.ceil(meta.total / meta.limit) : null;
+  const totalPages =
+    meta && meta.total && meta.limit
+      ? Math.ceil(meta.total / meta.limit)
+      : null;
 
   return (
     <div style={{ padding: 20 }}>
       <h2>All Orders (Shipments)</h2>
       <div style={{ marginBottom: 12 }}>
-        <button onClick={() => load(1)} disabled={loading} style={{ marginRight: 8 }}>
+        <button
+          onClick={() => load(1)}
+          disabled={loading}
+          style={{ marginRight: 8 }}
+        >
           {loading ? "Cargando..." : "All Orders"}
         </button>
       </div>
 
-      {error && <div style={{ color: "#ef4444", marginBottom: 12 }}>{error}</div>}
+      {error && (
+        <div style={{ color: "#ef4444", marginBottom: 12 }}>{error}</div>
+      )}
 
       <div>
         {shipments.length === 0 && !loading && <div>No hay envíos</div>}
         {shipments.map((s, idx) => (
-          <div key={s.id || s.trackingId || idx} style={{ border: "1px solid #e5e7eb", padding: 12, borderRadius: 6, marginBottom: 8 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+          <div
+            key={s.id || s.trackingId || idx}
+            style={{
+              border: "1px solid #e5e7eb",
+              padding: 12,
+              borderRadius: 6,
+              marginBottom: 8,
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: 8,
+              }}
+            >
               <div>
-                <div><strong>{s.trackingId || s.trackingId}</strong></div>
+                <div>
+                  <strong>{s.trackingId || s.trackingId}</strong>
+                </div>
                 <div style={{ color: "#6b7280" }}>Order: {s.orderId}</div>
               </div>
               <div style={{ minWidth: 220 }}>
-                <select value={s.status} onChange={(e) => handleStatusChange(s.trackingId, e.target.value, idx)}>
+                <select
+                  value={s.status}
+                  onChange={(e) =>
+                    handleStatusChange(s.trackingId, e.target.value, idx, s.userId)
+                  }
+                >
                   {validStates.map((st) => (
-                    <option key={st} value={st}>{st}</option>
+                    <option key={st} value={st}>
+                      {st}
+                    </option>
                   ))}
                 </select>
               </div>
             </div>
             <div style={{ color: "#6b7280", fontSize: 13 }}>
-              Creado: {s.createdAt ? new Date(s.createdAt).toLocaleString() : "-"} • Transportista: {s.carrier || "-"}
+              Creado:{" "}
+              {s.createdAt ? new Date(s.createdAt).toLocaleString() : "-"} •
+              Transportista: {s.carrier || "-"}
             </div>
           </div>
         ))}
       </div>
 
-      <div style={{ marginTop: 12, display: "flex", gap: 8, alignItems: "center" }}>
-        <button onClick={() => load(Math.max(1, page - 1))} disabled={page <= 1 || loading}>
+      <div
+        style={{ marginTop: 12, display: "flex", gap: 8, alignItems: "center" }}
+      >
+        <button
+          onClick={() => load(Math.max(1, page - 1))}
+          disabled={page <= 1 || loading}
+        >
           Prev
         </button>
-        <div>Page {page}{totalPages ? ` of ${totalPages}` : ""}</div>
-        <button onClick={() => load(page + 1)} disabled={loading || (totalPages && page >= totalPages)}>
+        <div>
+          Page {page}
+          {totalPages ? ` of ${totalPages}` : ""}
+        </div>
+        <button
+          onClick={() => load(page + 1)}
+          disabled={loading || (totalPages && page >= totalPages)}
+        >
           Next
         </button>
       </div>
