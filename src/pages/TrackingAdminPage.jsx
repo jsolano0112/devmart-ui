@@ -61,16 +61,11 @@ export default function TrackingAdminPage() {
       setError(res.errorMessage || "No se pudo actualizar estado");
       console.error("[ADMIN PAGE] Error updating status:", res.errorMessage);
     } else {
-      console.log('crear notificacion')
       const payload = buildNotificationPayload(
         newStatus
       );
       const res = await createNotificationForUser(payload.type, payload.message, userId, new Date(), false);
-      console.log({res})
-      console.log(
-        "[ADMIN PAGE] ✓ Status updated successfully for trackingId:",
-        trackingId,
-      );
+      
     }
   };
 
