@@ -190,7 +190,7 @@ export const Navbar = () => {
 
   useEffect(() => {
     let mounted = true;
-    const SOCKET_URL = process.env.REACT_APP_SOCKET_SERVER_URL || "http://localhost:5000";
+    const SOCKET_URL = process.env.REACT_APP_SOCKET_SERVER_URL;
     const connect = async () => {
       try {
         // dynamic import so build won't break if package missing
