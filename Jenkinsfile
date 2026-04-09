@@ -24,9 +24,12 @@ pipeline {
                 echo 'Construyendo imagen Docker...'
                 script {
                     if (isUnix()) {
-                        sh "docker build -t ${IMAGE_NAME}:latest ."
+                        // sh "docker build -t ${IMAGE_NAME}:latest ."
+                        sh "docker compose down -d ${IMAGE_NAME}:latest"
+                        sh "docker compose up -d ${IMAGE_NAME}:latest"
                     } else {
-                        bat "docker build -t %IMAGE_NAME%:latest ."
+                        bat 'docker compose down -d %IMAGE_NAME%:latest .'
+                        bat 'docker compose up -d %IMAGE_NAME%:latest .'
                     }
                 }
             }

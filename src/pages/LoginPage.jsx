@@ -80,7 +80,7 @@ export default function LoginPage() {
     },
     logo: {
       display: "inline-block",
-      background: "white",
+      background: "red",
       borderRadius: "16px",
       padding: "16px 24px",
       marginBottom: "16px",
