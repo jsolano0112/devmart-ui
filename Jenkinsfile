@@ -26,7 +26,25 @@ pipeline {
                     if (isUnix()) {
                         sh "docker build -t ${IMAGE_NAME}:latest ."
                     } else {
-                        bat "docker build -t %IMAGE_NAME%:latest ."
+                        bat 'docker build -t %IMAGE_NAME%:latest .'
+                    }
+                }
+            }
+        }
+        stage('Desplegar Contenedor') {
+            steps {
+                echo 'Desplegando devmart-ui...'
+                script {
+                    if (isUnix()) {
+                        sh """
+                            cd ${COMPOSE_DIR}
+                            docker compose --env-file ./devmart-ui/.env up -d --no-deps devmart-ui-1
+                        """
+                    } else {
+                        bat '''
+                            cd %COMPOSE_DIR%
+                            docker compose --env-file ./devmart-ui/.env up -d --no-deps devmart-ui-1
+                        '''
                     }
                 }
             }
