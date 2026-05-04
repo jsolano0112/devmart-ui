@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = 'devmart-ui'
+        COMPOSE_DIR = 'C:\\Users\\LENOVO\\Desktop\\electiva 3'
     }
 
     stages {
@@ -26,25 +27,26 @@ pipeline {
                     if (isUnix()) {
                         sh "docker build -t ${IMAGE_NAME}:latest ."
                     } else {
-                        bat 'docker build -t %IMAGE_NAME%:latest .'
+                        bat "docker build -t %IMAGE_NAME%:latest ."
                     }
                 }
             }
         }
+
         stage('Desplegar Contenedor') {
             steps {
                 echo 'Desplegando devmart-ui...'
                 script {
                     if (isUnix()) {
                         sh """
-                            cd ${COMPOSE_DIR}
-                            docker compose --env-file ./devmart-ui/.env up -d --no-deps devmart-ui-1
+                            cd "${COMPOSE_DIR}"
+                            docker compose --env-file ./devmart-ui/.env up -d --no-deps --force-recreate devmart-ui-1
                         """
                     } else {
-                        bat '''
-                            cd %COMPOSE_DIR%
-                            docker compose --env-file ./devmart-ui/.env up -d --no-deps devmart-ui-1
-                        '''
+                        bat """
+                            cd "%COMPOSE_DIR%"
+                            docker compose --env-file ./devmart-ui/.env up -d --no-deps --force-recreate devmart-ui-1
+                        """
                     }
                 }
             }
@@ -53,10 +55,10 @@ pipeline {
 
     post {
         success {
-            echo 'Imagen devmart-ui construida correctamente'
+            echo 'devmart-ui desplegado correctamente'
         }
         failure {
-            echo 'Error al construir la imagen'
+            echo 'Error al desplegar devmart-ui'
         }
     }
 }
