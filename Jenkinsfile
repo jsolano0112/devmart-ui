@@ -2,11 +2,10 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "jsolano0112/devmart-ui"
+        IMAGE_NAME = 'jsolano0112/devmart-ui'
     }
 
     stages {
-
         stage('Build') {
             steps {
                 withCredentials([
@@ -15,7 +14,7 @@ pipeline {
                     string(credentialsId: 'notifications-api-url',  variable: 'NOTIF_API'),
                     string(credentialsId: 'socket-server-url',      variable: 'SOCKET_URL')
                 ]) {
-                    bat """
+                    bat '''
                         docker build ^
                         --build-arg REACT_APP_DEVMART_API=%DEVMART_API% ^
                         --build-arg REACT_APP_USERS_API=%USERS_API% ^
@@ -24,37 +23,35 @@ pipeline {
                         -t %IMAGE_NAME%:%BUILD_NUMBER% ^
                         -t %IMAGE_NAME%:latest ^
                         .
-                    """
+                    '''
                 }
             }
         }
-
         stage('Push a DockerHub') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-credentials',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
-                )]) {
-                    bat """
-                        echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
-                        docker push %IMAGE_NAME%:%BUILD_NUMBER%
-                        docker push %IMAGE_NAME%:latest
-                        docker logout
-                    """
-                }
+            credentialsId: 'dockerhub-credentials',
+            usernameVariable: 'DOCKER_USER',
+            passwordVariable: 'DOCKER_PASS'
+        )]) {
+                    bat '''
+                echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin || exit /b 1
+                docker push %IMAGE_NAME%:%BUILD_NUMBER% || exit /b 1
+                docker push %IMAGE_NAME%:latest || exit /b 1
+                docker logout
+            '''
+        }
             }
         }
-
         stage('Limpiar') {
             steps {
-                bat "docker rmi %IMAGE_NAME%:%BUILD_NUMBER% || true"
+                bat 'docker rmi %IMAGE_NAME%:%BUILD_NUMBER% || true'
             }
         }
     }
 
     post {
-        success { echo "✅ devmart-ui publicado en DockerHub" }
-        failure { echo "❌ Falló el build del frontend" }
+        success { echo '✅ devmart-ui publicado en DockerHub' }
+        failure { echo '❌ Falló el build del frontend' }
     }
 }
