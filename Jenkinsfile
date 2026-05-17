@@ -10,19 +10,19 @@ pipeline {
         stage('Build') {
             steps {
                 withCredentials([
-                    string(credentialsId: 'devmart-api-url',    variable: 'DEVMART_API'),
-                    string(credentialsId: 'users-api-url',      variable: 'USERS_API'),
-                    string(credentialsId: 'notifications-api-url', variable: 'NOTIF_API'),
-                    string(credentialsId: 'socket-server-url',  variable: 'SOCKET_URL')
+                    string(credentialsId: 'devmart-api-url',        variable: 'DEVMART_API'),
+                    string(credentialsId: 'users-api-url',          variable: 'USERS_API'),
+                    string(credentialsId: 'notifications-api-url',  variable: 'NOTIF_API'),
+                    string(credentialsId: 'socket-server-url',      variable: 'SOCKET_URL')
                 ]) {
-                    sh """
-                        docker build \
-                        --build-arg REACT_APP_DEVMART_API=$DEVMART_API \
-                        --build-arg REACT_APP_USERS_API=$USERS_API \
-                        --build-arg REACT_APP_NOTIFICATIONS_API=$NOTIF_API \
-                        --build-arg REACT_APP_SOCKET_SERVER_URL=$SOCKET_URL \
-                        -t ${IMAGE_NAME}:${BUILD_NUMBER} \
-                        -t ${IMAGE_NAME}:latest \
+                    bat """
+                        docker build ^
+                        --build-arg REACT_APP_DEVMART_API=%DEVMART_API% ^
+                        --build-arg REACT_APP_USERS_API=%USERS_API% ^
+                        --build-arg REACT_APP_NOTIFICATIONS_API=%NOTIF_API% ^
+                        --build-arg REACT_APP_SOCKET_SERVER_URL=%SOCKET_URL% ^
+                        -t %IMAGE_NAME%:%BUILD_NUMBER% ^
+                        -t %IMAGE_NAME%:latest ^
                         .
                     """
                 }
@@ -36,10 +36,10 @@ pipeline {
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-                    sh """
-                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-                        docker push ${IMAGE_NAME}:${BUILD_NUMBER}
-                        docker push ${IMAGE_NAME}:latest
+                    bat """
+                        echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+                        docker push %IMAGE_NAME%:%BUILD_NUMBER%
+                        docker push %IMAGE_NAME%:latest
                         docker logout
                     """
                 }
@@ -48,7 +48,7 @@ pipeline {
 
         stage('Limpiar') {
             steps {
-                sh "docker rmi ${IMAGE_NAME}:${BUILD_NUMBER} || true"
+                bat "docker rmi %IMAGE_NAME%:%BUILD_NUMBER% || true"
             }
         }
     }
