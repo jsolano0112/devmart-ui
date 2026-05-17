@@ -2,49 +2,52 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME        = 'devmart-ui'
-        COMPOSE_SERVICES  = 'devmart-ui-1'
-        REMOTE_DEPLOY_DIR = '/opt/devmart'
-        COMPOSE_FILE      = 'docker-compose.prod.yml'
-        DEVMART_EC2_HOST  = credentials('DEVMART_EC2_HOST')
-    }
-
-    triggers {
-        githubPush()
+        IMAGE_NAME = 'devmart-ui'
+        COMPOSE_DIR = 'C:\\Users\\LENOVO\\Desktop\\electiva 3'
     }
 
     stages {
-        stage('Instalar dependencias') {
+        stage('Instalar Dependencias') {
             steps {
-                bat 'npm ci || npm install'
-            }
-        }
-
-        stage('Construir imagen Docker') {
-            steps {
+                echo 'Instalando dependencias...'
                 script {
-                    def base = "http://${env.DEVMART_EC2_HOST}:8081"
-                    bat """
-                        docker build -t %IMAGE_NAME%:latest ^
-                          --build-arg REACT_APP_DEVMART_API=${base}/api/v1/ ^
-                          --build-arg REACT_APP_USERS_API=${base}/api/v1/ ^
-                          --build-arg REACT_APP_NOTIFICATIONS_API=${base}/api/v1/ ^
-                          --build-arg REACT_APP_SOCKET_SERVER_URL=${base} ^
-                          .
-                    """
+                    if (isUnix()) {
+                        sh 'npm install'
+                    } else {
+                        bat 'npm install'
+                    }
                 }
             }
         }
 
-        stage('Desplegar en EC2') {
+        stage('Construir Imagen Docker') {
             steps {
-                sshagent(credentials: ['DEVMART_EC2_SSH']) {
-                    bat '''
-                        docker save %IMAGE_NAME%:latest -o image.tar
-                        scp -o StrictHostKeyChecking=no image.tar ubuntu@%DEVMART_EC2_HOST%:/tmp/%IMAGE_NAME%.tar
-                        ssh -o StrictHostKeyChecking=no ubuntu@%DEVMART_EC2_HOST% "docker load -i /tmp/%IMAGE_NAME%.tar && rm -f /tmp/%IMAGE_NAME%.tar"
-                        ssh -o StrictHostKeyChecking=no ubuntu@%DEVMART_EC2_HOST% "cd %REMOTE_DEPLOY_DIR% && docker compose -f %COMPOSE_FILE% up -d --no-deps %COMPOSE_SERVICES%"
-                    '''
+                echo 'Construyendo imagen Docker...'
+                script {
+                    if (isUnix()) {
+                        sh "docker build -t ${IMAGE_NAME}:latest ."
+                    } else {
+                        bat "docker build -t %IMAGE_NAME%:latest ."
+                    }
+                }
+            }
+        }
+
+        stage('Desplegar Contenedor') {
+            steps {
+                echo 'Desplegando devmart-ui...'
+                script {
+                    if (isUnix()) {
+                        sh """
+                            cd "${COMPOSE_DIR}"
+                            docker compose --env-file ./devmart-ui/.env up -d --no-deps --force-recreate devmart-ui-1
+                        """
+                    } else {
+                        bat """
+                            cd "%COMPOSE_DIR%"
+                            docker compose --env-file ./devmart-ui/.env up -d --no-deps --force-recreate devmart-ui-1
+                        """
+                    }
                 }
             }
         }
@@ -52,10 +55,10 @@ pipeline {
 
     post {
         success {
-            echo "UI desplegada. Acceso unico via Nginx: http://${env.DEVMART_EC2_HOST}:8081"
+            echo 'devmart-ui desplegado correctamente'
         }
         failure {
-            echo 'Error en pipeline devmart-ui.'
+            echo 'Error al desplegar devmart-ui'
         }
     }
 }
