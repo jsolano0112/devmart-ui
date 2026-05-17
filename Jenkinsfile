@@ -2,63 +2,59 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'devmart-ui'
-        COMPOSE_DIR = 'C:\\Users\\LENOVO\\Desktop\\electiva 3'
+        IMAGE_NAME = "jsolano0112/devmart-ui"
     }
 
     stages {
-        stage('Instalar Dependencias') {
+
+        stage('Build') {
             steps {
-                echo 'Instalando dependencias...'
-                script {
-                    if (isUnix()) {
-                        sh 'npm install'
-                    } else {
-                        bat 'npm install'
-                    }
+                withCredentials([
+                    string(credentialsId: 'devmart-api-url',    variable: 'DEVMART_API'),
+                    string(credentialsId: 'users-api-url',      variable: 'USERS_API'),
+                    string(credentialsId: 'notifications-api-url', variable: 'NOTIF_API'),
+                    string(credentialsId: 'socket-server-url',  variable: 'SOCKET_URL')
+                ]) {
+                    sh """
+                        docker build \
+                        --build-arg REACT_APP_DEVMART_API=$DEVMART_API \
+                        --build-arg REACT_APP_USERS_API=$USERS_API \
+                        --build-arg REACT_APP_NOTIFICATIONS_API=$NOTIF_API \
+                        --build-arg REACT_APP_SOCKET_SERVER_URL=$SOCKET_URL \
+                        -t ${IMAGE_NAME}:${BUILD_NUMBER} \
+                        -t ${IMAGE_NAME}:latest \
+                        .
+                    """
                 }
             }
         }
 
-        stage('Construir Imagen Docker') {
+        stage('Push a DockerHub') {
             steps {
-                echo 'Construyendo imagen Docker...'
-                script {
-                    if (isUnix()) {
-                        sh "docker build -t ${IMAGE_NAME}:latest ."
-                    } else {
-                        bat "docker build -t %IMAGE_NAME%:latest ."
-                    }
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-credentials',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh """
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                        docker push ${IMAGE_NAME}:${BUILD_NUMBER}
+                        docker push ${IMAGE_NAME}:latest
+                        docker logout
+                    """
                 }
             }
         }
 
-        stage('Desplegar Contenedor') {
+        stage('Limpiar') {
             steps {
-                echo 'Desplegando devmart-ui...'
-                script {
-                    if (isUnix()) {
-                        sh """
-                            cd "${COMPOSE_DIR}"
-                            docker compose --env-file ./devmart-ui/.env up -d --no-deps --force-recreate devmart-ui-1
-                        """
-                    } else {
-                        bat """
-                            cd "%COMPOSE_DIR%"
-                            docker compose --env-file ./devmart-ui/.env up -d --no-deps --force-recreate devmart-ui-1
-                        """
-                    }
-                }
+                sh "docker rmi ${IMAGE_NAME}:${BUILD_NUMBER} || true"
             }
         }
     }
 
     post {
-        success {
-            echo 'devmart-ui desplegado correctamente'
-        }
-        failure {
-            echo 'Error al desplegar devmart-ui'
-        }
+        success { echo "✅ devmart-ui publicado en DockerHub" }
+        failure { echo "❌ Falló el build del frontend" }
     }
 }

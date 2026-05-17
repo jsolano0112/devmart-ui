@@ -1,28 +1,22 @@
-FROM node:20
+FROM node:20-alpine AS builder
 WORKDIR /app
+COPY package*.json ./
+RUN npm ci
 
-COPY package.json ./
-
-RUN npm install
-
-
-# Declarar los args
 ARG REACT_APP_DEVMART_API
 ARG REACT_APP_USERS_API
 ARG REACT_APP_NOTIFICATIONS_API
 ARG REACT_APP_SOCKET_SERVER_URL
 
-# Convertirlos en ENV para que React los tome en el build
 ENV REACT_APP_DEVMART_API=$REACT_APP_DEVMART_API
 ENV REACT_APP_USERS_API=$REACT_APP_USERS_API
 ENV REACT_APP_NOTIFICATIONS_API=$REACT_APP_NOTIFICATIONS_API
 ENV REACT_APP_SOCKET_SERVER_URL=$REACT_APP_SOCKET_SERVER_URL
-ENV PORT=5173 
-ENV WDS_SOCKET_PORT=0 
 
 COPY . .
+RUN npm run build
 
-
-EXPOSE 5173
-
-CMD ["npm","start"]
+FROM nginx:alpine
+COPY --from=builder /app/build /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
