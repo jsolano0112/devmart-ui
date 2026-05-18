@@ -39,10 +39,26 @@ pipeline {
                 bat 'docker rmi %IMAGE_NAME%:%BUILD_NUMBER% 2>nul & exit /b 0'
             }
         }
+
+        stage('Deploy en EC2') {
+            steps {
+                withCredentials([
+                    string(credentialsId: 'devmart-ec2-ip', variable: 'EC2_IP'),
+                    sshUserPrivateKey(
+                        credentialsId: 'devmart-ssh-key',
+                        keyFileVariable: 'SSH_KEY'
+                    )
+                ]) {
+                    bat """
+                        ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" ubuntu@%EC2_IP% "cd /home/ubuntu/devmart-infra && docker-compose pull devmart-ui-1 && docker-compose up -d devmart-ui-1"
+                    """
+                }
+            }
+        }
     }
 
     post {
-        success { echo '✅ devmart-ui publicado en DockerHub' }
-        failure { echo '❌ Falló el build del frontend' }
+        success { echo '✅ devmart-ui desplegado en EC2' }
+        failure { echo '❌ Falló el pipeline' }
     }
 }
