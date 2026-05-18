@@ -3,14 +3,9 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 
-ARG REACT_APP_DEVMART_API
-ARG REACT_APP_USERS_API
-ARG REACT_APP_NOTIFICATIONS_API
-ARG REACT_APP_SOCKET_SERVER_URL
-
-ENV REACT_APP_DEVMART_API=http://localhost:4000/api/
-ENV REACT_APP_USERS_API=http://localhost:4000/api/users/
-ENV REACT_APP_NOTIFICATIONS_API=http://localhost:4000/api/notifications/
+ENV REACT_APP_DEVMART_API=http://localhost:4000/api/v1/
+ENV REACT_APP_USERS_API=http://localhost:4000/api/v1/
+ENV REACT_APP_NOTIFICATIONS_API=http://localhost:4000/api/v1/
 ENV REACT_APP_SOCKET_SERVER_URL=http://localhost:4000
 
 COPY . .
