@@ -8,44 +8,35 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                withCredentials([
-                    string(credentialsId: 'devmart-api-url',        variable: 'DEVMART_API'),
-                    string(credentialsId: 'users-api-url',          variable: 'USERS_API'),
-                    string(credentialsId: 'notifications-api-url',  variable: 'NOTIF_API'),
-                    string(credentialsId: 'socket-server-url',      variable: 'SOCKET_URL')
-                ]) {
-                    bat '''
-                        docker build ^
-                        --build-arg REACT_APP_DEVMART_API=%DEVMART_API% ^
-                        --build-arg REACT_APP_USERS_API=%USERS_API% ^
-                        --build-arg REACT_APP_NOTIFICATIONS_API=%NOTIF_API% ^
-                        --build-arg REACT_APP_SOCKET_SERVER_URL=%SOCKET_URL% ^
-                        -t %IMAGE_NAME%:%BUILD_NUMBER% ^
-                        -t %IMAGE_NAME%:latest ^
-                        .
-                    '''
-                }
+                bat """
+                    docker build ^
+                    -t %IMAGE_NAME%:%BUILD_NUMBER% ^
+                    -t %IMAGE_NAME%:latest ^
+                    .
+                """
             }
         }
+
         stage('Push a DockerHub') {
             steps {
                 withCredentials([usernamePassword(
-            credentialsId: 'dockerhub-credentials',
-            usernameVariable: 'DOCKER_USER',
-            passwordVariable: 'DOCKER_PASS'
-        )]) {
-                    bat '''
-                docker login -u %DOCKER_USER% -p %DOCKER_PASS% || exit /b 1
-                docker push %IMAGE_NAME%:%BUILD_NUMBER% || exit /b 1
-                docker push %IMAGE_NAME%:latest || exit /b 1
-                docker logout
-            '''
-        }
+                    credentialsId: 'dockerhub-credentials',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    bat """
+                        docker login -u %DOCKER_USER% -p %DOCKER_PASS% || exit /b 1
+                        docker push %IMAGE_NAME%:%BUILD_NUMBER% || exit /b 1
+                        docker push %IMAGE_NAME%:latest || exit /b 1
+                        docker logout
+                    """
+                }
             }
         }
+
         stage('Limpiar') {
             steps {
-                bat 'docker rmi %IMAGE_NAME%:%BUILD_NUMBER% || true'
+                bat 'docker rmi %IMAGE_NAME%:%BUILD_NUMBER% 2>nul & exit /b 0'
             }
         }
     }
