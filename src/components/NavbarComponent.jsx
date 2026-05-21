@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { UserContext } from "../contexts/UserProvider";
 import { CartContext } from "../contexts/CartProvider";
-
+import { environment } from "../environment/environment.ts";
 export const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { userState, logout } = useContext(UserContext);
@@ -190,7 +190,7 @@ export const Navbar = () => {
 
   useEffect(() => {
     let mounted = true;
-    const SOCKET_URL = process.env.REACT_APP_SOCKET_SERVER_URL;
+    const SOCKET_URL = environment.SOCKET_URL;
     const connect = async () => {
       try {
         // dynamic import so build won't break if package missing
