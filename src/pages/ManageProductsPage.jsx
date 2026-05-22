@@ -167,12 +167,11 @@ export default function ManageProductsPage() {
   };
 
   const handleConfirmDelete = async () => {
-    if (deleteConfirm) {
-      await deleteOneProduct(deleteConfirm);
-      setDeleteConfirm(null);
-    }
-  };
-
+  if (deleteConfirm) {
+    await deleteOneProduct(deleteConfirm);
+    setDeleteConfirm(null);
+  }
+};
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
@@ -502,7 +501,7 @@ export default function ManageProductsPage() {
                   </div>
                 </div>
                 <div style={styles.actions}>
-                  <button
+                  {/* <button
                     style={styles.editButton}
                     onClick={() => handleOpenModal(product)}
                     onMouseEnter={(e) =>
@@ -513,7 +512,7 @@ export default function ManageProductsPage() {
                     }
                   >
                     Edit
-                  </button>
+                  </button> */}
                   <button
                     style={styles.deleteButton}
                     onClick={() => handleDelete(product.sku)}
