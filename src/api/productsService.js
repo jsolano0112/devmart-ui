@@ -19,15 +19,22 @@ export const getAllProducts = async () => {
 
 export const createProduct = async (newProduct) => {
   try {
-    const { data } = await api.post("/products", newProduct);
+    const { data } = await api.post("/products", newProduct, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
     return {
       ok: true,
-      products: data.data
+      products: data.data,
     };
   } catch (error) {
     return {
       ok: false,
-      errorMessage: error.response?.data?.errors?.[0]?.msg ?? error.response?.data?.error
+      errorMessage:
+        error.response?.data?.errors?.[0]?.msg ??
+        error.response?.data?.error,
     };
   }
 };

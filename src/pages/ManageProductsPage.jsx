@@ -25,9 +25,9 @@ export default function ManageProductsPage() {
     description: "",
     price: 0,
     stock: 0,
-    images: "",
-    sku: 0,
-    categoryId: 0,
+    image: null,
+    sku: "",
+    categoryId: "",
     supplierId: 1,
   });
   const [errors, setErrors] = useState({});
@@ -70,15 +70,8 @@ export default function ManageProductsPage() {
       newErrors.stock = "Stock must be between 0 and 9999";
     }
 
-    if (!formData.images.trim()) {
-      newErrors.images = "Image URL is required";
-    } else if (
-      !/^(https?:\/\/.*\.(?:png|jpg|jpeg|gif|svg|webp))(?:\?.*)?(?:#.*)?$/i.test(
-        formData.images
-      )
-    ) {
-      newErrors.images =
-        "Must be a valid image URL (.png, .jpg, .jpeg, .gif, .svg, .webp)";
+    if (!formData.image) {
+      newErrors.image = "Image is required";
     }
 
     if (!formData.sku.trim()) {
@@ -135,19 +128,27 @@ export default function ManageProductsPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     setGeneralError("");
 
     if (!validateForm()) return;
 
-    const productData = {
-      ...formData,
-      price: parseFloat(formData.price),
-      stock: parseInt(formData.stock, 10),
-      sku: formData.sku,
-      categoryId: parseInt(formData.categoryId, 10),
-    };
+    const productData = new FormData();
+
+    productData.append("name", formData.name);
+    productData.append("description", formData.description);
+    productData.append("price", formData.price);
+    productData.append("stock", formData.stock);
+    productData.append("sku", formData.sku);
+    productData.append("categoryId", formData.categoryId);
+    productData.append("supplierId", formData.supplierId);
+
+    if (formData.image) {
+      productData.append("image", formData.image);
+    }
 
     let result;
+
     if (editingProduct) {
       result = await updateOneProduct(productData);
     } else {
@@ -160,7 +161,7 @@ export default function ManageProductsPage() {
       setGeneralError(errorMessage);
     }
   };
-
+  
   const handleDelete = async (sku) => {
     setDeleteConfirm(sku);
   };
@@ -173,8 +174,13 @@ export default function ManageProductsPage() {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, files } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: files ? files[0] : value,
+    }));
+
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -612,11 +618,10 @@ export default function ManageProductsPage() {
                 <div style={styles.formGroup}>
                   <label style={styles.label}>Image URL</label>
                   <input
-                    type="url"
-                    name="images"
-                    value={formData.images}
+                    type="file"
+                    name="image"
+                    accept="image/*"
                     onChange={handleChange}
-                    placeholder="https://example.com/image.png"
                     style={styles.input}
                   />
                   {errors.images && (
@@ -653,7 +658,7 @@ export default function ManageProductsPage() {
                       </option>
                     ))}
                   </select>
-                                  {errors.categoryId && (
+                  {errors.categoryId && (
                     <div style={styles.error}>{errors.categoryId}</div>
                   )}
                 </div>
@@ -685,7 +690,8 @@ export default function ManageProductsPage() {
           >
             <h3 style={styles.confirmTitle}>Delete Product?</h3>
             <p style={{ color: "#64748b", fontSize: "14px" }}>
-              This action cannot be undone. The product will be permanently removed.
+              This action cannot be undone. The product will be permanently
+              removed.
             </p>
             <div style={styles.confirmButtons}>
               <button
