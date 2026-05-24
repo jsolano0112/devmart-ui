@@ -9,62 +9,33 @@ pipeline {
     stages {
 
         stage('Build') {
-
             steps {
-
                 script {
-
-                    def API_CREDENTIAL_ID = ''
-                    def USERS_API_CREDENTIAL_ID = ''
+                    def API_CREDENTIAL_ID            = ''
+                    def USERS_API_CREDENTIAL_ID      = ''
                     def NOTIFICATIONS_API_CREDENTIAL_ID = ''
-                    def SOCKET_CREDENTIAL_ID = ''
+                    def SOCKET_CREDENTIAL_ID         = ''
 
-                    // QA
-                    if (env.BRANCH_NAME == 'develop') {
-
-                        API_CREDENTIAL_ID = 'qa-devmart-api-url'
-                        USERS_API_CREDENTIAL_ID = 'qa-users-api-url'
+                    if (env.BRANCH_NAME == 'qa') {
+                        API_CREDENTIAL_ID            = 'qa-devmart-api-url'
+                        USERS_API_CREDENTIAL_ID      = 'qa-users-api-url'
                         NOTIFICATIONS_API_CREDENTIAL_ID = 'qa-notifications-api-url'
-                        SOCKET_CREDENTIAL_ID = 'qa-socket-url'
-
-                    }
-                    // PROD
-                    else if (env.BRANCH_NAME == 'main') {
-
-                        API_CREDENTIAL_ID = 'prod-devmart-api-url'
-                        USERS_API_CREDENTIAL_ID = 'prod-users-api-url'
+                        SOCKET_CREDENTIAL_ID         = 'qa-socket-url'
+                    } else if (env.BRANCH_NAME == 'main') {
+                        API_CREDENTIAL_ID            = 'prod-devmart-api-url'
+                        USERS_API_CREDENTIAL_ID      = 'prod-users-api-url'
                         NOTIFICATIONS_API_CREDENTIAL_ID = 'prod-notifications-api-url'
-                        SOCKET_CREDENTIAL_ID = 'prod-socket-url'
-
-                    }
-                    else {
-
+                        SOCKET_CREDENTIAL_ID         = 'prod-socket-url'
+                    } else {
                         error("❌ Branch no soportada: ${env.BRANCH_NAME}")
                     }
 
                     withCredentials([
-
-                        string(
-                            credentialsId: API_CREDENTIAL_ID,
-                            variable: 'REACT_APP_DEVMART_API'
-                        ),
-
-                        string(
-                            credentialsId: USERS_API_CREDENTIAL_ID,
-                            variable: 'REACT_APP_USERS_API'
-                        ),
-
-                        string(
-                            credentialsId: NOTIFICATIONS_API_CREDENTIAL_ID,
-                            variable: 'REACT_APP_NOTIFICATIONS_API'
-                        ),
-
-                        string(
-                            credentialsId: SOCKET_CREDENTIAL_ID,
-                            variable: 'REACT_APP_SOCKET_SERVER_URL'
-                        )
+                        string(credentialsId: API_CREDENTIAL_ID,            variable: 'REACT_APP_DEVMART_API'),
+                        string(credentialsId: USERS_API_CREDENTIAL_ID,      variable: 'REACT_APP_USERS_API'),
+                        string(credentialsId: NOTIFICATIONS_API_CREDENTIAL_ID, variable: 'REACT_APP_NOTIFICATIONS_API'),
+                        string(credentialsId: SOCKET_CREDENTIAL_ID,         variable: 'REACT_APP_SOCKET_SERVER_URL')
                     ]) {
-
                         bat """
                             docker build ^
                             --build-arg REACT_APP_DEVMART_API=%REACT_APP_DEVMART_API% ^
@@ -80,23 +51,17 @@ pipeline {
             }
         }
 
-        stage('Push a DockerHub') {
-
+        stage('Push') {
             steps {
-
                 withCredentials([usernamePassword(
                     credentialsId: 'dockerhub-credentials',
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-
                     bat """
                         docker login -u %DOCKER_USER% -p %DOCKER_PASS% || exit /b 1
-
                         docker push %IMAGE_NAME%:%BUILD_NUMBER% || exit /b 1
-
                         docker push %IMAGE_NAME%:latest || exit /b 1
-
                         docker logout
                     """
                 }
@@ -104,9 +69,7 @@ pipeline {
         }
 
         stage('Limpiar') {
-
             steps {
-
                 bat """
                     docker rmi %IMAGE_NAME%:%BUILD_NUMBER% 2>nul
                     docker rmi %IMAGE_NAME%:latest 2>nul
@@ -116,43 +79,25 @@ pipeline {
             }
         }
 
-        stage('Deploy en EC2') {
-
+        stage('Aprobación PROD') {
+            when {
+                branch 'main'
+            }
             steps {
+                input message: '¿Confirmas deploy de devmart-ui en PROD?', ok: 'Sí, deployar'
+            }
+        }
 
+        stage('Deploy') {
+            steps {
                 script {
-
-                    def EC2_IP_CREDENTIAL = ''
-                    def COMPOSE_FILE = ''
-
-                    // PROD
-                    if (env.BRANCH_NAME == 'main') {
-
-                        EC2_IP_CREDENTIAL = 'prod-ec2-ip'
-                        COMPOSE_FILE = 'docker-compose.prod.yml'
-
-                    }
-                    else {
-                       
-                        EC2_IP_CREDENTIAL = 'qa-ec2-ip'
-                        COMPOSE_FILE = 'docker-compose.qa.yml'
-
-                    }
+                    def EC2_IP_CREDENTIAL = env.BRANCH_NAME == 'main' ? 'prod-ec2-ip' : 'qa-ec2-ip'
+                    def SSH_KEY_CREDENTIAL = env.BRANCH_NAME == 'main' ? 'devmart-ssh-key-prod' : 'devmart-ssh-key-qa'
 
                     withCredentials([
-
-                        string(
-                            credentialsId: EC2_IP_CREDENTIAL,
-                            variable: 'EC2_IP'
-                        ),
-
-                        sshUserPrivateKey(
-                            credentialsId: 'devmart-ssh-key',
-                            keyFileVariable: 'SSH_KEY'
-                        )
-
+                        string(credentialsId: EC2_IP_CREDENTIAL, variable: 'EC2_IP'),
+                        sshUserPrivateKey(credentialsId: SSH_KEY_CREDENTIAL, keyFileVariable: 'SSH_KEY')
                     ]) {
-
                         bat """
                             icacls "%SSH_KEY%" /inheritance:r
                             icacls "%SSH_KEY%" /grant:r "%USERNAME%:R"
@@ -160,7 +105,7 @@ pipeline {
                             ssh -o StrictHostKeyChecking=no ^
                             -i "%SSH_KEY%" ^
                             ubuntu@%EC2_IP% ^
-                            "cd /home/ubuntu/devmart-infra && docker compose -f ${COMPOSE_FILE} pull devmart-ui-1 && docker compose -f ${COMPOSE_FILE} up -d devmart-ui-1"
+                            "cd /home/ubuntu/devmart-infra && docker compose pull devmart-ui-1 && docker compose up -d devmart-ui-1"
                         """
                     }
                 }
@@ -169,13 +114,7 @@ pipeline {
     }
 
     post {
-
-        success {
-            echo '✅ devmart-ui desplegado correctamente'
-        }
-
-        failure {
-            echo '❌ Falló el pipeline de devmart-ui'
-        }
+        success { echo "✅ devmart-ui desplegado en ${env.BRANCH_NAME == 'main' ? 'PROD' : 'QA'}" }
+        failure { echo '❌ Falló el pipeline de devmart-ui' }
     }
 }
