@@ -1,3 +1,32 @@
+def resolveDeployTarget() {
+    def explicit = env.DEPLOY_ENV?.trim()?.toLowerCase()
+    if (explicit in ['qa', 'prod']) {
+        return explicit
+    }
+
+    def branch = env.BRANCH_NAME?.trim()
+    if (!branch && env.GIT_BRANCH) {
+        branch = env.GIT_BRANCH.replaceFirst(/^origin\//, '').trim()
+    }
+
+    if (branch == 'main') {
+        return 'prod'
+    }
+    if (branch in ['qa', 'develop']) {
+        return 'qa'
+    }
+
+    def job = env.JOB_NAME?.toLowerCase() ?: ''
+    if (job.contains('prod')) {
+        return 'prod'
+    }
+    if (job.contains('qa')) {
+        return 'qa'
+    }
+
+    error("No se pudo determinar qa/prod. DEPLOY_ENV=${env.DEPLOY_ENV}, BRANCH_NAME=${env.BRANCH_NAME}, GIT_BRANCH=${env.GIT_BRANCH}, JOB_NAME=${env.JOB_NAME}")
+}
+
 pipeline {
     agent any
 
@@ -6,17 +35,19 @@ pipeline {
     }
 
     stages {
+        stage('Setup') {
+            steps {
+                script {
+                    env.DEPLOY_TARGET = resolveDeployTarget()
+                    echo "Entorno detectado: ${env.DEPLOY_TARGET}"
+                }
+            }
+        }
+
         stage('Build') {
             steps {
                 script {
-                    def BASE_URL_CREDENTIAL = ''
-                    if (env.BRANCH_NAME == 'qa') {
-                        BASE_URL_CREDENTIAL = 'qa-base-url'
-                    } else if (env.BRANCH_NAME == 'main') {
-                        BASE_URL_CREDENTIAL = 'prod-base-url'
-                    } else {
-                        error("Branch no soportada: ${env.BRANCH_NAME}")
-                    }
+                    def BASE_URL_CREDENTIAL = env.DEPLOY_TARGET == 'prod' ? 'prod-base-url' : 'qa-base-url'
 
                     withCredentials([
                         string(credentialsId: BASE_URL_CREDENTIAL, variable: 'BASE_URL')
@@ -66,7 +97,7 @@ pipeline {
 
         stage('Aprobacion PROD') {
             when {
-                branch 'main'
+                expression { env.DEPLOY_TARGET == 'prod' }
             }
             steps {
                 input message: 'Confirmas deploy de devmart-ui en PROD?', ok: 'Si, deployar'
@@ -76,9 +107,10 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    def EC2_IP_CREDENTIAL  = env.BRANCH_NAME == 'main' ? 'prod-ec2-ip'         : 'qa-ec2-ip'
-                    def SSH_KEY_CREDENTIAL = env.BRANCH_NAME == 'main' ? 'devmart-ssh-key-prod' : 'devmart-ssh-key-qa'
-                    def INFRA_BRANCH         = env.BRANCH_NAME == 'main' ? 'main'    : 'develop'
+                    def isProd             = env.DEPLOY_TARGET == 'prod'
+                    def EC2_IP_CREDENTIAL  = isProd ? 'prod-ec2-ip'         : 'qa-ec2-ip'
+                    def SSH_KEY_CREDENTIAL = isProd ? 'devmart-ssh-key-prod' : 'devmart-ssh-key-qa'
+                    def INFRA_BRANCH       = isProd ? 'main'    : 'develop'
 
                     withCredentials([
                         string(credentialsId: EC2_IP_CREDENTIAL, variable: 'EC2_IP'),
@@ -100,7 +132,7 @@ pipeline {
     }
 
     post {
-        success { echo "devmart-ui desplegado en ${env.BRANCH_NAME == 'main' ? 'PROD' : 'QA'}" }
+        success { echo "devmart-ui desplegado en ${env.DEPLOY_TARGET == 'prod' ? 'PROD' : 'QA'}" }
         failure { echo 'Fallo el pipeline de devmart-ui' }
     }
 }
