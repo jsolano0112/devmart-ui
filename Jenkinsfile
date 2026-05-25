@@ -9,9 +9,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    def API_BASE_URL    = ''
-                    def SOCKET_URL      = ''
-
+                    def BASE_URL_CREDENTIAL = ''
                     if (env.BRANCH_NAME == 'qa') {
                         BASE_URL_CREDENTIAL = 'qa-base-url'
                     } else if (env.BRANCH_NAME == 'main') {
@@ -80,20 +78,21 @@ pipeline {
                 script {
                     def EC2_IP_CREDENTIAL  = env.BRANCH_NAME == 'main' ? 'prod-ec2-ip'         : 'qa-ec2-ip'
                     def SSH_KEY_CREDENTIAL = env.BRANCH_NAME == 'main' ? 'devmart-ssh-key-prod' : 'devmart-ssh-key-qa'
+                    def INFRA_BRANCH         = env.BRANCH_NAME == 'main' ? 'main'    : 'develop'
 
                     withCredentials([
                         string(credentialsId: EC2_IP_CREDENTIAL, variable: 'EC2_IP'),
                         sshUserPrivateKey(credentialsId: SSH_KEY_CREDENTIAL, keyFileVariable: 'SSH_KEY')
                     ]) {
-                        bat '''
+                        bat """
                             icacls "%SSH_KEY%" /inheritance:r
                             icacls "%SSH_KEY%" /grant:r "%USERNAME%:R"
 
                             ssh -o StrictHostKeyChecking=no ^
                             -i "%SSH_KEY%" ^
                             ubuntu@%EC2_IP% ^
-                            "cd /home/ubuntu/devmart-infra && docker compose pull devmart-ui-1 && docker compose up -d devmart-ui-1"
-                        '''
+                            "if [ ! -d /home/ubuntu/devmart-infra ]; then cd /home/ubuntu && git clone -b ${INFRA_BRANCH} https://github.com/jsolano0112/devmart-infra.git; fi && cd /home/ubuntu/devmart-infra && docker-compose pull devmart-ui-1 && docker-compose up -d devmart-ui-1"
+                        """
                     }
                 }
             }
