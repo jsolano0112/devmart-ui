@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'jsolano0112/devmart-ui'
-        AWS_REGION = 'us-east-1'
+        IMAGE_NAME  = 'jsolano0112/devmart-ui'
+        AWS_REGION  = 'us-east-1'
         ECS_CLUSTER = 'devmart-cluster'
         ECS_SERVICE = 'devmart-ui'
     }
@@ -11,15 +11,13 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                withCredentials([
-                    string(credentialsId: 'qa-base-url', variable: 'BASE_URL')
-                ]) {
+                script {
                     bat '''
                         docker build ^
-                        --build-arg REACT_APP_DEVMART_API=%BASE_URL%/api/v1/ ^
-                        --build-arg REACT_APP_USERS_API=%BASE_URL%/api/v1/ ^
-                        --build-arg REACT_APP_NOTIFICATIONS_API=%BASE_URL%/api/v1/ ^
-                        --build-arg REACT_APP_SOCKET_SERVER_URL=%BASE_URL% ^
+                        --build-arg REACT_APP_DEVMART_API=/api/v1/ ^
+                        --build-arg REACT_APP_USERS_API=/api/v1/ ^
+                        --build-arg REACT_APP_NOTIFICATIONS_API=/api/v1/ ^
+                        --build-arg REACT_APP_SOCKET_SERVER_URL=/ ^
                         -t %IMAGE_NAME%:%BUILD_NUMBER% ^
                         -t %IMAGE_NAME%:latest ^
                         .
@@ -52,7 +50,7 @@ pipeline {
                     string(credentialsId: 'AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY'),
                 ]) {
                     bat '''
-                        aws ecs update-service --cluster %ECS_CLUSTER% --service %ECS_SERVICE% --force-new-deployment --region %AWS_REGION%
+                        aws ecs update-service --cluster %ECS_CLUSTER% --service %ECS_SERVICE% --force-new-deployment --region %AWS_REGION% > nul
                     '''
                 }
             }
@@ -73,7 +71,7 @@ pipeline {
     post {
         success { 
             echo '======================================================='
-            echo " devmart-ui actualizado exitosamente" 
+            echo " devmart-ui actualizado exitosamente en QA" 
             echo '======================================================='
         }
         failure { 
