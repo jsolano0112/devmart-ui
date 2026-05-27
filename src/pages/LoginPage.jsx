@@ -223,7 +223,7 @@ export default function LoginPage() {
             </h1>
           </div>
           <h2 style={styles.title}>Sign in</h2>
-          <p style={styles.subtitle}>Access your DevMart account ...</p>
+          <p style={styles.subtitle}>Access your DevMart account</p>
         </div>
 
         <div style={styles.card}>
