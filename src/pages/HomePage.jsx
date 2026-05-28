@@ -233,7 +233,7 @@ export default function HomePage() {
         {user.isAdmin && (
           <div style={styles.header}>
             <Link to="/admin/products" style={styles.addButton}>
-              Add New Product.
+              Add New Product....test
             </Link>
             <button
               style={styles.addButton}
