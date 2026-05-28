@@ -15,7 +15,7 @@ export const productReducer = (state = productInitialState, action = {}) => {
                 loadingProducts: true,
                 errorMessage: null
             };
-        
+
         case productTypes.getProducts:
             return {
                 ...state,
@@ -23,7 +23,7 @@ export const productReducer = (state = productInitialState, action = {}) => {
                 products: action.payload,
                 errorMessage: null
             };
-        
+
         case productTypes.getProductById:
             return {
                 ...state,
@@ -31,7 +31,7 @@ export const productReducer = (state = productInitialState, action = {}) => {
                 selectedProduct: action.payload,
                 errorMessage: null
             };
-        
+
         case productTypes.createProduct:
             return {
                 ...state,
@@ -39,40 +39,39 @@ export const productReducer = (state = productInitialState, action = {}) => {
                 products: [...state.products, action.payload],
                 errorMessage: null
             };
-        
+
         case productTypes.updateProduct:
             return {
                 ...state,
                 loadingProducts: false,
-                products: state.products.map(product => 
+                products: state.products.map(product =>
                     product.id === action.payload.id ? action.payload : product
                 ),
                 selectedProduct: action.payload.id === state.selectedProduct?.id ? action.payload : state.selectedProduct,
                 errorMessage: null
             };
-        
+
         case productTypes.deleteProduct:
             return {
                 ...state,
                 loadingProducts: false,
-                products: state.products.filter(product => product.id !== action.payload),
-                selectedProduct: state.selectedProduct?.id === action.payload ? null : state.selectedProduct,
+                products: state.products.filter(product => product.sku !== action.payload),
+                selectedProduct: state.selectedProduct?.sku === action.payload ? null : state.selectedProduct,
                 errorMessage: null
             };
-        
         case productTypes.productsError:
             return {
                 ...state,
                 loadingProducts: false,
                 errorMessage: action.payload
             };
-        
+
         case productTypes.clearProductsError:
             return {
                 ...state,
                 errorMessage: null
             };
-        
+
         default:
             return state;
     }
